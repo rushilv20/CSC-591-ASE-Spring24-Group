@@ -1,28 +1,29 @@
-import math
+from util import coerce
 
 
-class COLS:
-    def __init__(self):
-        self.x, self.y, self.all = [], [], []
-        self.klass, self.col = None, None
+class NUM:
+    def __init__(self, s=None, n=None):
+        self.txt = s or " "
+        self.at = n or 0
+        self.n = 0
+        self.mu = 0
+        self.m2 = 0
+        self.hi = float("-inf")
+        self.lo = float("inf")
+        self.heaven = 0 if s and s.endswith("-") else 1
 
-    def new(self, row):
-        for at, txt in enumerate(row.cells):
-            col = (NUM if txt[0].isalpha()
-                   and txt[0].isupper() else SYM)(txt, at)
-            self.all.append(col)
+    def add(self, x):
+        if not x == "?":
+            x = coerce(x)
+            self.n += 1
+            d = x - self.mu
+            self.mu += d / self.n
+            self.m2 += d * (x - self.mu)
+            self.lo = min(x, self.lo)
+            self.hi = max(x, self.hi)
 
-            if not txt.endswith("X"):
-                if txt.endswith("!"):
-                    self.klass = col
-                (self.y if txt.endswith("!") or txt.endswith("+")
-                 or txt.endswith("-") else self.x)[at] = col
+    def mid(self):
+        return self.mu
 
-        # check this with Ratish
-        self.names = row.cells
-
-    def add(self, row):
-        for cols in [self.x, self.y]:
-            for col in cols:
-                col.add(row.cells[col.at])
-        return row
+    def div(self):
+        return 0 if self.n < 2 else (self.m2 / (self.n - 1))**0.5
