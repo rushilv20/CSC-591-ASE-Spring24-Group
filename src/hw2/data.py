@@ -3,7 +3,7 @@ import csv
 from sym import SYM
 from rows import ROW
 from cols import COLS
-from util import UTIL
+from util import rounded
 
 
 class Data:
@@ -42,5 +42,5 @@ class Data:
             if(isinstance(col, SYM)):
                 u[col.txt] = col.mid()
             else:
-                u[col.txt] = UTIL.rounded(col.mid())
+                u[col.txt] = rounded(col.mid())
         return u
