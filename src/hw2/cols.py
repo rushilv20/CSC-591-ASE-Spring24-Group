@@ -23,3 +23,6 @@ class COLS:
         for cols in [self.x, self.y]:
             for col in list(cols.values()):
                 col.add(row.cells[col.at - 1])
+
+    def __repr__(self):
+        return f"Cols(names={self.names})"
