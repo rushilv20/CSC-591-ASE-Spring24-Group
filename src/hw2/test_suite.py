@@ -59,17 +59,17 @@ class TestSuite:
         print("NUM Test 3 Passed:", 9.8 < mu < 10.2 and 1.9 < sd < 2.4)
         print("   - Values Calculated: ", round(mu, 3), round(sd, 3))
 
-    # def test_eg_stats(self):
-    #     data = Data(self.the, "../../data/auto93.csv")
-    #     stats_result = data.stats()
-    #     expected_result = "{'.N': 398, 'Lbs-': 2970.42, 'Acc+': 15.57, 'Mpg+': 23.84}"
-    #     print("Actual Result:", str(stats_result))
-    #     print("Expected Result:", expected_result)
+    def test_eg_stats(self):
+        data = Data(self.the, "../../data/auto93.csv")
+        stats_result = data.stats()
+        expected_result = "{'.N': 398, 'Lbs-': 2970.42, 'Acc+': 15.57, 'Mpg+': 23.84}"
+        print("Actual Result:", str(stats_result))
+        print("Expected Result:", expected_result)
         
-    #     if str(stats_result) == expected_result:
-    #         print("Test Passed!")
-    #     else:
-    #         print("Test Failed!")
+        if str(stats_result) == expected_result:
+            print("Test Passed!")
+        else:
+            print("Test Failed!")
 
     def run_num_tests(self):
         for test in self.num:
