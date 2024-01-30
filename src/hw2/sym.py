@@ -2,13 +2,14 @@ import math
 
 
 class SYM:
-    def __init__(self, s=None, n=None):
+    def __init__(self, the, s=None, n=None):
         self.txt = s if s else " "
         self.at = n if n else 0
         self.n = 0
         self.has = {}
         self.mode = None
         self.most = 0
+        self.the = the
 
     def add(self, x):
         if x != "?":

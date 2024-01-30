@@ -1,28 +1,32 @@
 import math
 from num import NUM
 from sym import SYM
-
+import re
 
 class COLS:
     def __init__(self, row):
-        self.x, self.y, self.all = {}, {}, []
+        self.x, self.y, self.all = [], [], []
         self.klass, self.col = None, None
         self.names = row.cells
 
-        for at, txt in enumerate(row.cells, 1):
-            col = NUM(txt, at) if txt[0].isupper() else SYM(txt, at)
+        for idx, name in enumerate(row.cells):
+            col = NUM(name, idx) if re.match("^[A-Z]", name) else SYM(name, idx)
             self.all.append(col)
 
-            if not txt.endswith("X"):
-                if txt.endswith("!"):
+            if not name.endswith("X"):
+                if name.endswith("!"):
                     self.klass = col
-                (self.y if txt.endswith("!") or txt.endswith("+")
-                 or txt.endswith("-") else self.x)[at] = col
+
+                #updated to simpler code
+                if re.search("[!+-]$", name):
+                    self.y.append(col)
+                else:
+                    self.x.append(col)
 
     def add(self, row):
         for cols in [self.x, self.y]:
-            for col in list(cols.values()):
-                col.add(row.cells[col.at - 1])
+            for col in cols:
+                col.add(row.cells[col.at])
 
     def __repr__(self):
         return f"Cols(names={self.names})"

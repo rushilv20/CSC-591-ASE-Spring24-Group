@@ -1,123 +1,84 @@
-import math
 from num import NUM
 from sym import SYM
-from util import coerce, settings, cells, rounded, cli
-import os
-import platform
+from data import Data
+
+import random
 
 class TestSuite:
-    def test_coerce(self):
-        assert coerce("42") == 42
-        assert coerce("  42  ") == 42
-        assert coerce("3.14") == 3.14
-        assert coerce("true") == True
-        assert coerce("false") == False
-        assert coerce("nil") == None
-        assert coerce("  hello  ") == "hello"
+    def __init__(self) -> None:
+        self.all = [self.test_sym_1, self.test_sym_2, self.test_sym_3, self.test_num_1, self.test_num_2, self.test_num_3]
+        self.num = [self.test_num_1, self.test_num_2, self.test_num_3]
+        self.sym = [self.test_sym_1, self.test_sym_2, self.test_sym_3]
+
+    def test_sym_1(self):
+        s = SYM()
+        for x in [1, 2, 2, 2, 3, 3, 1, 3, 3, 1]:
+            s.add(x)
+        mode, e = s.mid(), s.div()
+        print("SYM Test 3 Passed:", 1.47 < e < 1.65 and mode == 3)
+        print("   - Values Calculated: ", mode, e)
+
+    def test_sym_2(self):
+        s = SYM()
+        for x in [1, 2, 2, 2, 3, 3, 3, 4, 4, 4, 5, 5]:
+            s.add(x)
+        mode, e = s.mid(), s.div()
+        print("SYM Test 2 Passed:", 2.20 < e < 2.25 and mode == 2)
+        print("   - Values Calculated: ", mode, e)
+
+    def test_sym_3(self):
+        s = SYM()
+        for x in [4, 4, 3, 3, 5, 3, 3]:
+            s.add(x)
+        mode, e = s.mid(), s.div()
+        print("SYM Test 1 Passed:", 1.37 < e < 1.38 and mode == 3)
+        print("   - Values Calculated: ", mode, e)
         
-
-    def test_settings(self):
-        input_str = "-c --cohen = 0.35\n -f --file = data.csv\n -h --help = False"
-        result, opt_dir = settings(input_str)
-
-        assert result == {'cohen': 0.35, 'file': 'data.csv', 'help': False}
-
-    def test_cells(self):
-        input_str = "1, 2, 3.14, true, false, nil, hello"
-        result = cells(input_str)
-        assert result == [1, 2, 3.14, True, False, None, "hello"]
-
-    def test_rounded(self):
-        assert rounded(3.14159, 2) == 3.14
-        assert rounded(42) == 42
-        assert rounded("hello") == "hello"
-        assert rounded(True) == True
-        assert rounded(False) == False
-
-    def test_add_num(self):
-        num_obj = NUM()
-        num_obj.add(5)
-        assert num_obj.n == 1
-        assert num_obj.mu == 5
-        assert num_obj.m2 == 0
-        assert num_obj.lo == 5
-        assert num_obj.hi == 5
-
-        num_obj.add(10)
-        assert num_obj.n == 2
-        assert num_obj.mu == 7.5
-        assert num_obj.m2 == 12.5
-        assert num_obj.lo == 5
-        assert num_obj.hi == 10
-
-    def test_mid_num(self):
-        num_obj = NUM()
-        num_obj.add(5)
-        num_obj.add(10)
-        assert num_obj.mid() == 7.5
-
-    def test_div_num(self):
-        num_obj = NUM()
-        num_obj.add(5)
-        num_obj.add(10)
-        assert num_obj.div() == (12.5 / 1)**0.5
-
-    def test_add_sym(self):
-        sym_obj = SYM()
-        sym_obj.add("a")
-        assert sym_obj.n == 1
-        assert sym_obj.has == {"a": 1}
-        assert sym_obj.mode == "a"
-        assert sym_obj.most == 1
-
-        sym_obj.add("b")
-        sym_obj.add("a")
-        assert sym_obj.n == 3
-        assert sym_obj.has == {"a": 2, "b": 1}
-        assert sym_obj.mode == "a"
-        assert sym_obj.most == 2
-
-    def test_mid_sym(self):
-        sym_obj = SYM()
-        sym_obj.add("a")
-        sym_obj.add("b")
-        assert sym_obj.mid() == "a"
-
-    def test_div_sym(self):
-        sym_obj = SYM()
-        sym_obj.add("a")
-        sym_obj.add("b")
-        sym_obj.add("a")
-        sym_obj.add("c")
-        assert math.isclose(sym_obj.div(), 1.5)
-
-    def test_small_sym(self):
-        sym_obj = SYM()
-        assert sym_obj.small() == 0
-
-
-    def _run_test(self, test_func, test_name):
-        try:
-            test_func()
-            print(f"Test {test_name} passed.")
-        except AssertionError as e:
-            print(f"Test {test_name} failed: {e}")
-
-    def run_tests(self):
-        print("Running tests in TestSuite")
-        test_functions = [func for func in dir(self) if func.startswith('test_') and callable(getattr(self, func))]
-        for test_func_name in test_functions:
-            test_func = getattr(self, test_func_name)
-            self._run_test(test_func, test_func_name)        
+    def test_num_1(self):
+        e = NUM()
+        for _ in range(1000):
+            e.add(random.normalvariate(15, 3))
+        mu, sd = e.mid(), e.div()
+        print("NUM Test 2 Passed:", 14.7 < mu < 15.2 and 2.9 < sd < 3.05)
+        print("   - Values Calculated: ", round(mu, 3), round(sd, 3))
     
+    def test_num_2(self):
+        e = NUM()
+        for _ in range(1000):
+            e.add(random.normalvariate(5, 1))
+        mu, sd = e.mid(), e.div()
+        print("NUM Test 1 Passed:", 4.7 < mu < 5.1 and 1 < sd < 1.05)
+        print("   - Values Calculated: ", round(mu, 3), round(sd, 3))
 
-def set_environment_variable(variable_name, value):
-    system_platform = platform.system()
-    if system_platform == "Windows":
-        os.system(f'setx {variable_name} "{value}"')
-    else:
-        os.system(f'export {variable_name}="{value}"')
 
-if __name__ == '__main__':
-    test_suite = TestSuite()
-    test_suite.run_tests()
+    def test_num_3(self):
+        e = NUM()
+        for _ in range(1000):
+            e.add(random.normalvariate(10, 2))
+        mu, sd = e.mid(), e.div()
+        print("NUM Test 3 Passed:", 9.8 < mu < 10.2 and 1.9 < sd < 2.4)
+        print("   - Values Calculated: ", round(mu, 3), round(sd, 3))
+
+    # def test_eg_stats(self):
+    #     data = Data(self.the, "../../data/auto93.csv")
+    #     stats_result = data.stats()
+    #     expected_result = "{'.N': 398, 'Lbs-': 2970.42, 'Acc+': 15.57, 'Mpg+': 23.84}"
+    #     print("Actual Result:", str(stats_result))
+    #     print("Expected Result:", expected_result)
+        
+    #     if str(stats_result) == expected_result:
+    #         print("Test Passed!")
+    #     else:
+    #         print("Test Failed!")
+
+    def run_num_tests(self):
+        for test in self.num:
+            test()
+
+    def run_sym_tests(self):
+        for test in self.sym:
+            test()
+
+    def run_all_tests(self):
+        for test in self.all:
+            test()

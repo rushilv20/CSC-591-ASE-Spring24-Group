@@ -8,7 +8,7 @@ class Utility:
         pass
     
     def csv(self, file="-"):
-        with file.FileInput (None if file=="-" else file) as src:
+        with fileinput.input (None if file=="-" else file) as src:
             for line in src: 
                 #convert all the values to empty string
                 line = re.sub(r'([\n\t\r"\' ]|#.*)', '', line)
@@ -22,7 +22,7 @@ class Utility:
         except Exception: return s.strip() #when s is already a string
 
 
-    def rounded(n, ndecs=None):
+    def round(n, ndecs=None):
         if type(n) == str:
             return n
         if math.floor(n) == n:
@@ -34,3 +34,24 @@ class Utility:
         u = t[:]
         random.shuffle(u)
         return u
+    
+    #ERROR, to be solved later
+    # def slice(self, t, go=None, stop=None, inc=None):
+    #     if go is not None and go < 0:
+    #     go = len(t) + go
+    # if stop is not None and stop < 0:
+    #     stop = len(t) + stop
+
+    # u = []
+
+    # if go is None:
+    #     go = 0
+    # if stop is None:
+    #     stop = len(t)
+    # if inc is None:
+    #     inc = 1
+
+    # for j in range(go, stop, inc):
+    #     u.append(t[j])
+
+    # return u
