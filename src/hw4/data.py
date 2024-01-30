@@ -4,6 +4,7 @@ from sym import SYM
 from rows import ROW
 from cols import COLS
 from util import Utility
+import random
 
 
 class Data:

@@ -6,12 +6,14 @@ class ROW:
         self.cells = cells
         self.the = the
 
-    # def d2h(self, data):
-    #     d, n = 0, 0
-    #     for col in data.cols.y:
-    #         n += 1
-    #         d += abs(col.heaven - col.norm(self.cells[col.at])) ** 2
-    #     return math.sqrt(d) / math.sqrt(n)
+    def d2h(self, data,d,n):
+        d, n = 0, 0
+        for col in data.cols.y:
+            n += 1
+            d += abs(col.heaven - col.norm(self.cells[col.at])) ** 2
+        return (d ** 0.5) / (n ** 0.5)
+
+
 
     # def likes(self, datas):
     #     n, nHypotheses = 0, 0
