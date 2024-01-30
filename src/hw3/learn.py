@@ -3,9 +3,7 @@ from data import Data
 def learn(data, row, my, the):
     my['n'] += 1
     kl = row.cells[data.cols.klass.at]
-    
     # print("Once", my['datas'])
-    # print(kl)
     
     if my['n'] > 10:
         my['tries'] += 1
