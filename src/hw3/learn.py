@@ -1,4 +1,4 @@
-from data import Data
+from data import DATA
 
 def learn(data, row, my, the):
     my['n'] += 1
@@ -7,10 +7,12 @@ def learn(data, row, my, the):
     
     if my['n'] > 10:
         my['tries'] += 1
-        my['acc'] += 1 if kl == row.likes(my['datas'])[0] else 0
+        if kl == row.likes(my['datas'])[0]:
+           my['acc'] += 1
+        else: my['acc'] = 0
     
     if not my['datas']:
         my['datas'] = {}
     
-    my['datas'][kl] = my['datas'].get(kl, Data(the, [data.cols.names]))
+    my['datas'][kl] = my['datas'].get(kl, DATA(the, [data.cols.names]))
     my['datas'][kl].add(row)
