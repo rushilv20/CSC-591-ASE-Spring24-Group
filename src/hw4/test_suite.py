@@ -1,7 +1,7 @@
 from num import NUM
 from sym import SYM
 from data import Data
-
+import math
 import random
 
 class TestSuite:

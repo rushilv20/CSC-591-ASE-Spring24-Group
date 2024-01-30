@@ -22,7 +22,7 @@ class Utility:
         except Exception: return s.strip() #when s is already a string
 
 
-    def round(n, ndecs=None):
+    def round(self,n, ndecs=None):
         if type(n) == str:
             return n
         if math.floor(n) == n:
@@ -30,7 +30,7 @@ class Utility:
         mul = 10**(ndecs or 2)
         return math.floor(n * mul + 0.5) / mul
 
-    def shuffle(t):
+    def shuffle(self,t):
         u = t[:]
         random.shuffle(u)
         return u
