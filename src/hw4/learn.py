@@ -16,3 +16,10 @@ def learn(data, row, my, the):
     
     my['datas'][kl] = my['datas'].get(kl, Data(the, [data.cols.names]))
     my['datas'][kl].add(row)
+
+def bayes():
+    wme = {'acc': 0, 'datas': [], 'tries': 0, 'n': 0}
+    data = Data.new("../data/diabetes.csv")
+    learn(data, lambda data, t: learn(data, t, wme))
+    print(wme['acc'] / (wme['tries']))
+    return wme['acc'] / (wme['tries']) > 0.72

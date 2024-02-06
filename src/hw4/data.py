@@ -103,6 +103,8 @@ class Data:
                 out, max_val = i, tmp
         
         return out, selected
+    
+
 
     def bestRest(self, rows, wanted):
         rows.sort(key=lambda a: a.d2h(self))

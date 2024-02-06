@@ -54,3 +54,10 @@ class Utility:
             u.append(t[j])
 
         return u
+    
+    def keys(t):
+        u = [k for k in t]
+        u.sort()
+        return u
+    
+    
