@@ -35,3 +35,13 @@ class SYM:
             return 0
         else:
             return ((self.has.get(x, 0) or 0) + self.the.m * prior) / (self.n + self.the.m)
+        
+#addition of homework 5
+#     function SYM:dist(x,y)
+#   return  (x=="?" and y=="?" and 1) or (x==y and 0 or 1) end
+    def dist(self, x, y):
+        return 1 if x == "?" and y == "?" else 0 if x == y else 1
+
+#function SYM:bin(x) return x end
+    def bin(self,x):
+        return x
