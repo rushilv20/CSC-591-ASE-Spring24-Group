@@ -35,23 +35,22 @@ class Utility:
         random.shuffle(u)
         return u
     
-    #ERROR, to be solved later
-    # def slice(self, t, go=None, stop=None, inc=None):
-    #     if go is not None and go < 0:
-    #     go = len(t) + go
-    # if stop is not None and stop < 0:
-    #     stop = len(t) + stop
+    def slice(self, t, go=None, stop=None, inc=None):
+        if go is not None and go < 0:
+            go = len(t) + go
+        if stop is not None and stop < 0:
+            stop = len(t) + stop
 
-    # u = []
+        u = []
 
-    # if go is None:
-    #     go = 0
-    # if stop is None:
-    #     stop = len(t)
-    # if inc is None:
-    #     inc = 1
+        if go is None:
+            go = 0
+        if stop is None:
+            stop = len(t)
+        if inc is None:
+            inc = 1
 
-    # for j in range(go, stop, inc):
-    #     u.append(t[j])
+        for j in range(go, stop, inc):
+            u.append(t[j])
 
-    # return u
+        return u

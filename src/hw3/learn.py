@@ -1,4 +1,4 @@
-from data import DATA
+from data import Data
 
 def learn(data, row, my, the):
     my['n'] += 1
@@ -14,5 +14,5 @@ def learn(data, row, my, the):
     if not my['datas']:
         my['datas'] = {}
     
-    my['datas'][kl] = my['datas'].get(kl, DATA(the, [data.cols.names]))
+    my['datas'][kl] = my['datas'].get(kl, Data(the, [data.cols.names]))
     my['datas'][kl].add(row)

@@ -29,6 +29,7 @@ class Data:
         else:
             row = ROW(self.the, t)
 
+        #print(self.cols)
         if self.cols:
             if fun:
                 fun(self, row)

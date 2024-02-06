@@ -3,9 +3,13 @@ from sym import SYM
 from data import Data
 from learn import learn
 import random
+from util import Utility
 
 class TestSuite:
-    def __init__(self) -> None:
+    def __init__(self, the) -> None:
+        self.the = the
+        self.util = Utility()
+
         self.all = [self.test_sym_1, self.test_sym_2, self.test_sym_3, self.test_num_1, self.test_num_2, self.test_num_3]
         self.num = [self.test_num_1, self.test_num_2, self.test_num_3]
         self.sym = [self.test_sym_1, self.test_sym_2, self.test_sym_3]
@@ -77,6 +81,59 @@ class TestSuite:
         print("File Used :", self.the.file)
         print("Accurary :", wme['acc'] / wme['tries'] * 100, "%")
         return wme['acc'] / wme['tries'] > 0.72
+
+    def test_km(self):
+        print("#%4s\t%s\t%s" % ("acc", "k", "m"))
+        
+        for k in range(4):
+            for m in range(4):
+                self.the.k = k
+                self.the.m = m
+                wme = {'acc': 0, 'datas': {}, 'tries': 0, 'n': 0}
+                data = Data(self.the, "../data/soybean.csv", lambda data, t: learn(data, t, wme, self.the))
+                print("%5.2f\t%s\t%s" % (wme['acc'] / wme['tries'], k, m))
+
+    def test_gate(self):
+        self.reset_to_default_seed()
+        budget0 = 4
+        budget = 10
+        some = 0.5
+
+        d = Data(self.the, "../data/auto93.csv")
+
+        def sayd(row, txt):
+            distance_to_heaven = self.util.rnd(row.d2h(d))
+            print("{0} {1} {2}".format(str(row.cells), txt, distance_to_heaven))
+
+        def say(row, txt):
+            print("{0} {1}".format(str(row.cells), txt))
+
+        print("{0} {1} {2}".format(str(d.cols.names.cells), "about", "d2h"))
+        print("#overall")
+        sayd(d.mid(), "mid")
+        say(d.div(), "div")
+        say(d.small(), "small=div*" + str(self.the.cohen))
+
+        print("#generality")
+        # print(d.rows)
+        stats, bests = d.gate(budget0, budget, some)
+        for index, stat in enumerate(stats):
+            sayd(stat, index + budget0)
+
+        print("#specifically")
+        for index, best in enumerate(bests):
+            sayd(best, index + budget0)
+
+        print("#optimum")
+        d.rows.sort(key=lambda a: a.d2h(d))
+        sayd(d.rows[0], len(d.rows))
+
+        print("#random")
+        random_rows = self.util.shuffle(d.rows)
+        print(len(random_rows), int(math.log(0.05) / math.log(1 - self.the.cohen / 6)))
+        random_rows = self.util.slice(random_rows, 1, int(math.log(0.05) / math.log(1 - self.the.cohen / 6)))
+        random_rows.sort(key=lambda a: a.d2h(d))
+        sayd(random_rows[0], None)
 
     def run_num_tests(self):
         for test in self.num:

@@ -1,20 +1,42 @@
+#!/usr/bin/env python3
+"""
+gate: guess, assess, try, expand
+(c) 2023, Tim Menzies, BSD-2, GROUP 4
+Learn a little, guess a lot, try the strangest guess, repeat
+
+USAGE:
+  python3 gate.py [OPTIONS] 
+
+OPTIONS:
+  -c --cohen  small effect size               = .35
+  -f --file   csv data file name              = '../data/diabetes.csv'
+  -h --help   show help                       = False
+  -k --k      low class frequency kludge      = 1
+  -m --m      low attribute frequency kludge  = 2
+  -s --seed   random number seed              = 31210
+  -t --todo   start up action                 = 'help' """
+
+
 from data import Data
 from test_suite import TestSuite
 import argparse
+from util import Utility
 
 def main():
     parser = argparse.ArgumentParser(description="Statistics on a CSV file: ")
     
     parser.add_argument('-c', '--cohen', help="small effect size               = .35")
-    parser.add_argument("-f", "--file", required=True, help="path to src file")
-    parser.add_argument("-t", "--task", choices=["num", "sym", "stats", "all"], 
-                        required=True, help="Task to perform")
+    parser.add_argument("-f", "--file", help="csv data file name              = '../data/diabetes.csv'")
+    parser.add_argument("-k", "--k", type=int, help="low class frequency kludge      = 1")
+    parser.add_argument('-m', '--m', type=int,help="low attribute frequency kludge  = 2")
+    parser.add_argument('-s', '--seed', help="random number seed              = 31210")
+    parser.add_argument("-t", "--task", help="start up action                 = 'help' ")
     args = parser.parse_args()
 
     #loading data and sending it to Data class
     data = Data(args, src=args.file)
 
-    tests = TestSuite()
+    tests = TestSuite(args)
 
     if args.task == "stats":
         res = data.stats()
@@ -25,6 +47,15 @@ def main():
 
     elif args.task == "num":
         tests.run_num_tests()
+
+    elif args.task == "bayes":
+        tests.test_eg_bayes()
+    elif args.task == "km":
+        tests.test_km()
+    elif args.task == "gate":
+        tests.test_gate()
+    elif args.task == "gate20":
+        tests.test_gate20()
 
     elif args.task == "all":
         tests.run_all_tests()

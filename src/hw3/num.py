@@ -1,5 +1,6 @@
 
 class NUM:
+    cohen = 0.35
     def __init__(self, s=None, n=None):
         self.txt = s or " "
         self.at = n or 0
@@ -30,3 +31,9 @@ class NUM:
     
     def norm (self, x):
         return x if x == "?" else (x - self.lo) / (self.hi - self.lo + 1E-30)
+
+    def like(self, x, _):
+        mu, sd = self.mid(), (self.div() + 1E-30)
+        num = 2.718 ** (-0.5 * (x - mu) ** 2 / (sd ** 2))
+        denum = (sd * 2.5 + 1E-30)
+        return num / denum
