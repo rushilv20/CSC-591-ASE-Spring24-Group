@@ -1,6 +1,7 @@
 import math
 
-
+import sys
+from util import coerce
 class ROW:
     def __init__(self, the, cells):
         self.cells = cells
@@ -43,3 +44,12 @@ class ROW:
             n += 1
             d += abs(col.heaven - col.norm(self.cells[col.at])) ** 2
         return math.sqrt(d) / math.sqrt(n)
+    
+    #addition for homework 5
+    def dist(self, other, data):
+        d, n, p = 0, 0, 2
+        for col in data.cols.x.values():
+            n += 1
+            d += col.dist(coerce(self.cells[col.at-1]), coerce(other.cells[col.at-1])) ** p
+           
+        return (d / n) ** (1 / p)
