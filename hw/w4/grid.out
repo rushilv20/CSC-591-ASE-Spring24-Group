@@ -1,0 +1,165 @@
+b4 {'a': 1, 'b': {'c': 2, 'd': [3]}} 
+after {'a': 1, 'b': {'c': 2, 'd': [10000]}}
+✅ pass: copy
+70.156
+|.. 43.301
+|.. |.. 31.869
+|.. |.. |.. BroadbandNetworks
+|.. |.. |.. ElectronicPublishing
+|.. |.. 36.443
+|.. |.. |.. VirtualReality
+|.. |.. |.. 33.072
+|.. |.. |.. |.. MultimediaAndHypermedia
+|.. |.. |.. |.. InformationHighway
+|.. 71.261
+|.. |.. 47.599
+|.. |.. |.. ObjectOrientedSystems
+|.. |.. |.. CrossPlatformGUIs
+|.. |.. 64.952
+|.. |.. |.. IntelligentAgents
+|.. |.. |.. 53.765
+|.. |.. |.. |.. VisualProgramming
+|.. |.. |.. |.. KnowledgeBasedSystems
+72.072
+|.. 48.734
+|.. |.. 38.73
+|.. |.. |.. TargetedOnInterface:TargetedOnOverallSystem
+|.. |.. |.. ConventionalSystem:IntelligentSystem
+|.. |.. 41.164
+|.. |.. |.. Multimedia:Programming
+|.. |.. |.. CommunicationTechnology:ApplicationTechnology
+|.. 67.443
+|.. |.. 54.263
+|.. |.. |.. DevelopmentTool:Application
+|.. |.. |.. ConventionalCommunication:NovelCommunication
+|.. |.. 57.009
+|.. |.. |.. HumanOrientedTool:SystemTool
+|.. |.. |.. OnlyActAsProgrammed:Semi-autonomous
+
+A ElectronicPublishing
+B VirtualReality
+C MultimediaAndHypermedia
+D VisualProgramming
+E CrossPlatformGUIs
+F ObjectOrientedSystems
+G KnowledgeBasedSystems
+H IntelligentAgents
+I InformationHighway
+J BroadbandNetworks
+
+{  J                                         F               }
+{                                                            }
+{                                                            }
+{        I                                                   }
+{                                                            }
+{  C                                                         }
+{     A                                                      }
+{                          E                                 }
+{  B              D           G                              }
+{                                                            }
+{                                                            }
+✅ pass: every
+✅ pass: num
+
+A ElectronicPublishing
+B VirtualReality
+C MultimediaAndHypermedia
+D VisualProgramming
+E CrossPlatformGUIs
+F ObjectOrientedSystems
+G KnowledgeBasedSystems
+H IntelligentAgents
+I InformationHighway
+J BroadbandNetworks
+
+{  J                                         F               }
+{                                                            }
+{                                                            }
+{        I                                                   }
+{                                                            }
+{  C                                                         }
+{     A                                                      }
+{                          E                                 }
+{  B              D           G                              }
+{                                                            }
+{                                                            }
+✅ pass: position
+70.156
+|.. 43.301
+|.. |.. 31.869
+|.. |.. |.. BroadbandNetworks
+|.. |.. |.. ElectronicPublishing
+|.. |.. 36.443
+|.. |.. |.. VirtualReality
+|.. |.. |.. 33.072
+|.. |.. |.. |.. MultimediaAndHypermedia
+|.. |.. |.. |.. InformationHighway
+|.. 71.261
+|.. |.. 47.599
+|.. |.. |.. ObjectOrientedSystems
+|.. |.. |.. CrossPlatformGUIs
+|.. |.. 64.952
+|.. |.. |.. IntelligentAgents
+|.. |.. |.. 53.765
+|.. |.. |.. |.. VisualProgramming
+|.. |.. |.. |.. KnowledgeBasedSystems
+✅ pass: prototypes
+{'a': 'Num', 'at': 0, 'hi': 5, 'id': 1424748973936, 'lo': 1, 'm2': 13.5, 'mu': 1.75, 'n': 8, 'txt': 'Num1', 'w': 1}
+{'a': 'Num', 'at': 1, 'hi': 5, 'id': 1424748973984, 'lo': 1, 'm2': 17.875, 'mu': 2.375, 'n': 8, 'txt': 'Num2', 'w': 1}
+{'a': 'Num', 'at': 2, 'hi': 3, 'id': 1424748970048, 'lo': 1, 'm2': 6.000000000000001, 'mu': 1.5, 'n': 8, 'txt': 'Num3', 'w': 1}
+{'a': 'Num', 'at': 3, 'hi': 5, 'id': 1424748973792, 'lo': 1, 'm2': 18.875, 'mu': 2.125, 'n': 8, 'txt': 'Num4', 'w': 1}
+{'a': 'Num', 'at': 4, 'hi': 5, 'id': 1424748970096, 'lo': 1, 'm2': 14.874999999999998, 'mu': 1.8749999999999998, 'n': 8, 'txt': 'Num5', 'w': 1}
+{'a': 'Num', 'at': 5, 'hi': 5, 'id': 1424748973504, 'lo': 1, 'm2': 32.0, 'mu': 3.0, 'n': 8, 'txt': 'Num6', 'w': 1}
+{'a': 'Num', 'at': 6, 'hi': 5, 'id': 1424748973024, 'lo': 1, 'm2': 20.000000000000004, 'mu': 3.5, 'n': 8, 'txt': 'Num7', 'w': 1}
+{'a': 'Num', 'at': 7, 'hi': 5, 'id': 1424748972976, 'lo': 2, 'm2': 10.874999999999998, 'mu': 4.125, 'n': 8, 'txt': 'Num8', 'w': 1}
+{'a': 'Num', 'at': 8, 'hi': 5, 'id': 1424748973552, 'lo': 1, 'm2': 16.0, 'mu': 2.5, 'n': 8, 'txt': 'Num9', 'w': 1}
+{'a': 'Num', 'at': 9, 'hi': 5, 'id': 1424748972640, 'lo': 1, 'm2': 15.875, 'mu': 2.375, 'n': 8, 'txt': 'Num10', 'w': 1}
+{'a': 'Sym', 'at': 10, 'has': defaultdict(<class 'int'>, {}), 'id': 1424748972592, 'mode': None, 'most': 0, 'n': 0, 'txt': 'thingX'}
+{'a': 'Row', 'cells': [5, 3, 3, 1, 1, 1, 1, 3, 5, 5, 'DevelopmentTool:Application'], 'id': 1424748973888, 'x': None, 'y': None}
+{'a': 'Row', 'cells': [2, 1, 1, 5, 5, 5, 5, 5, 1, 2, 'Multimedia:Programming'], 'id': 1424748972496, 'x': None, 'y': None}
+{'a': 'Row', 'cells': [1, 3, 1, 3, 2, 5, 4, 3, 1, 1, 'CommunicationTechnology:ApplicationTechnology'], 'id': 1424748972832, 'x': None, 'y': None}
+{'a': 'Row', 'cells': [2, 1, 1, 1, 3, 5, 3, 2, 2, 2, 'HumanOrientedTool:SystemTool'], 'id': 1424748972784, 'x': None, 'y': None}
+{'a': 'Row', 'cells': [1, 5, 3, 4, 1, 1, 4, 5, 4, 4, 'ConventionalCommunication:NovelCommunication'], 'id': 1424748972880, 'x': None, 'y': None}
+{'a': 'Row', 'cells': [1, 4, 1, 1, 1, 1, 1, 5, 3, 1, 'OnlyActAsProgrammed:Semi-autonomous'], 'id': 1424748973072, 'x': None, 'y': None}
+{'a': 'Row', 'cells': [1, 1, 1, 1, 1, 1, 5, 5, 1, 1, 'ConventionalSystem:IntelligentSystem'], 'id': 1424748973168, 'x': None, 'y': None}
+{'a': 'Row', 'cells': [1, 1, 1, 1, 1, 5, 5, 5, 3, 3, 'TargetedOnInterface:TargetedOnOverallSystem'], 'id': 1424748973264, 'x': None, 'y': None}
+✅ pass: repcols
+{'a': 'Num', 'at': 0, 'hi': 5, 'id': 1424748973984, 'lo': 1, 'm2': 27.6, 'mu': 2.8, 'n': 10, 'txt': 'DevelopmentTool:Application', 'w': 1}
+{'a': 'Num', 'at': 1, 'hi': 5, 'id': 1424748970048, 'lo': 1, 'm2': 33.6, 'mu': 3.2, 'n': 10, 'txt': 'Multimedia:Programming', 'w': 1}
+{'a': 'Num', 'at': 2, 'hi': 5, 'id': 1424748973792, 'lo': 1, 'm2': 18.4, 'mu': 2.4, 'n': 10, 'txt': 'CommunicationTechnology:ApplicationTechnology', 'w': 1}
+{'a': 'Num', 'at': 3, 'hi': 5, 'id': 1424748970096, 'lo': 1, 'm2': 13.599999999999998, 'mu': 2.2000000000000006, 'n': 10, 'txt': 'HumanOrientedTool:SystemTool', 'w': 1}
+{'a': 'Num', 'at': 4, 'hi': 5, 'id': 1424748973504, 'lo': 1, 'm2': 23.6, 'mu': 3.2, 'n': 10, 'txt': 'ConventionalCommunication:NovelCommunication', 'w': 1}
+{'a': 'Num', 'at': 5, 'hi': 5, 'id': 1424748973024, 'lo': 1, 'm2': 20.9, 'mu': 1.9, 'n': 10, 'txt': 'OnlyActAsProgrammed:Semi-autonomous', 'w': 1}
+{'a': 'Num', 'at': 6, 'hi': 5, 'id': 1424748972976, 'lo': 1, 'm2': 25.6, 'mu': 1.8, 'n': 10, 'txt': 'ConventionalSystem:IntelligentSystem', 'w': 1}
+{'a': 'Num', 'at': 7, 'hi': 5, 'id': 1424748973552, 'lo': 1, 'm2': 30.4, 'mu': 2.5999999999999996, 'n': 10, 'txt': 'TargetedOnInterface:TargetedOnOverallSystem', 'w': 1}
+{'a': 'Sym', 'at': 8, 'has': defaultdict(<class 'int'>, {}), 'id': 1424748972640, 'mode': None, 'most': 0, 'n': 0, 'txt': 'thingX'}
+{'a': 'Row', 'cells': [5, 2, 1, 2, 1, 1, 1, 1, 'ElectronicPublishing'], 'id': 1424748973936, 'x': None, 'y': None}
+{'a': 'Row', 'cells': [3, 1, 3, 1, 5, 4, 1, 1, 'VirtualReality'], 'id': 1424748973888, 'x': None, 'y': None}
+{'a': 'Row', 'cells': [3, 1, 1, 1, 3, 1, 1, 1, 'MultimediaAndHypermedia'], 'id': 1424748972496, 'x': None, 'y': None}
+{'a': 'Row', 'cells': [1, 5, 3, 1, 4, 1, 1, 1, 'VisualProgramming'], 'id': 1424748972832, 'x': None, 'y': None}
+{'a': 'Row', 'cells': [1, 5, 2, 3, 1, 1, 1, 1, 'CrossPlatformGUIs'], 'id': 1424748972784, 'x': None, 'y': None}
+{'a': 'Row', 'cells': [1, 5, 5, 5, 1, 1, 1, 5, 'ObjectOrientedSystems'], 'id': 1424748972880, 'x': None, 'y': None}
+{'a': 'Row', 'cells': [1, 5, 4, 3, 4, 1, 5, 5, 'KnowledgeBasedSystems'], 'id': 1424748973072, 'x': None, 'y': None}
+{'a': 'Row', 'cells': [3, 5, 3, 2, 5, 5, 5, 5, 'IntelligentAgents'], 'id': 1424748973168, 'x': None, 'y': None}
+{'a': 'Row', 'cells': [5, 1, 1, 2, 4, 3, 1, 3, 'InformationHighway'], 'id': 1424748973744, 'x': None, 'y': None}
+{'a': 'Row', 'cells': [5, 2, 1, 2, 4, 1, 1, 3, 'BroadbandNetworks'], 'id': 1424748973360, 'x': None, 'y': None}
+✅ pass: reprows
+✅ pass: sym
+72.072
+|.. 48.734
+|.. |.. 38.73
+|.. |.. |.. TargetedOnInterface:TargetedOnOverallSystem
+|.. |.. |.. ConventionalSystem:IntelligentSystem
+|.. |.. 41.164
+|.. |.. |.. Multimedia:Programming
+|.. |.. |.. CommunicationTechnology:ApplicationTechnology
+|.. 67.443
+|.. |.. 54.263
+|.. |.. |.. DevelopmentTool:Application
+|.. |.. |.. ConventionalCommunication:NovelCommunication
+|.. |.. 57.009
+|.. |.. |.. HumanOrientedTool:SystemTool
+|.. |.. |.. OnlyActAsProgrammed:Semi-autonomous
+✅ pass: synonyms
+{'dump': False, 'file': '../../etc/data/repgrid1.csv', 'go': 'all', 'help': False, 'p': 2, 'seed': 937162211}
+✅ pass: the
