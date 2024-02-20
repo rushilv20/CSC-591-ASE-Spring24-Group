@@ -1,11 +1,13 @@
 import math
 
-
+import sys
+from util import coerce
 class ROW:
     def __init__(self, the, cells):
         self.cells = cells
         self.the = the
 
+    
     def likes(self, datas):
         n, nHypotheses = 0, 0
         for k, data in datas.items():
@@ -20,18 +22,21 @@ class ROW:
         return out, most
 
     def like(self, data, n, nHypotheses):
+        # print(data.rows, self.the.k)
         prior = (len(data.rows) + self.the.k) / (n + self.the.k * nHypotheses)
         out = math.log(prior)
 
         for col in data.cols.x:
             v = self.cells[col.at]
             if v != "?":
+                inc = col.like(v, prior)
+                # out += math.log(inc)
                 try:
-                    out += math.log(col.like(v, prior))
+                    out += math.log(inc)
                 except ValueError:
                     return 0.0
-
-        return math.exp(out)
+                
+        return math.exp(1) ** out
 
     def d2h(self, data):
         d, n = 0, 0
@@ -39,22 +44,12 @@ class ROW:
             n += 1
             d += abs(col.heaven - col.norm(self.cells[col.at])) ** 2
         return math.sqrt(d) / math.sqrt(n)
-
-    def neighbors(self, data, rows=None):
-        if rows is None:
-            rows = data.rows
-        return sorted(rows, key=lambda row: self.dist(row, data))
-
+    
+    #addition for homework 5
     def dist(self, other, data):
-        d, n, p = 0, 0, self.the.p
-        for col in data.cols.x:
+        d, n, p = 0, 0, 2
+        for col in data.cols.x.values():
             n += 1
-            d += col.dist(self.cells[col.at], other.cells[col.at]) ** p
+            d += col.dist(coerce(self.cells[col.at-1]), coerce(other.cells[col.at-1])) ** p
+           
         return (d / n) ** (1 / p)
-
-    # def dist_squared(self, other, data):
-    #     d, n, p = 0, 0, self.the.p
-    #     for col in data.cols.x:
-    #         n += 1
-    #         d += col.dist(self.cells[col.at], other.cells[col.at]) ** p
-    #     return d / n

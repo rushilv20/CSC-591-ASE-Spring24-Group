@@ -1,4 +1,5 @@
 import math
+from util import coerce
 class NUM:
     cohen = 0.35
     def __init__(self, s=None, n=None):
@@ -38,6 +39,9 @@ class NUM:
         denum = (sd * 2.5 + 1E-30)
         return num / denum
     
+#addition for homework5
+#--distance
+
     def dist(self, x, y):
         if x == "?" and y == "?":
             return 1
@@ -47,7 +51,12 @@ class NUM:
         if y == "?":
             y = 1 if x < 0.5 else 0
         return abs(x - y)
+    
+#function NUM:bin(x,     tmp)
+#   tmp = (self.hi - self.lo) / (the.bins - 1)
+#   return self.hi == self.lo and 1 or math.floor(x / tmp + .5) * tmp end
+#--bin
 
-    def bin(self, the, x):
+    def bin(self, x):
         tmp = (self.hi - self.lo) / (the.bins - 1)
         return 1 if self.hi == self.lo else math.floor(x / tmp + 0.5) * tmp

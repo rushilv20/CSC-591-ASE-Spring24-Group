@@ -54,19 +54,3 @@ class Utility:
             u.append(t[j])
 
         return u
-    
-    def keys(self, t):
-        u = [k for k in t]
-        u.sort()
-        return u
-
-    def many(self, t, n):
-        n = n or len(t)
-        return [random.choice(t) for _ in range(n)]
-
-    def keysort(self, t, fun):
-        u = [{'x': x, 'y': fun(x)} for x in t]
-        u.sort(key=lambda a: a['y'])
-        v = [xy['x'] for xy in u]
-        return v
-    
