@@ -135,6 +135,22 @@ class TestSuite:
         random_rows.sort(key=lambda a: a.d2h(d))
         sayd(random_rows[0], None)
 
+    def test_dist(self):
+        d = Data(self.the, "../data/auto93.csv")
+        r1 = d.rows[0]  # In Python, indices start from 0
+        rows = r1.neighbors(d)
+        for i, row in enumerate(rows):
+            if i % 30 == 0:
+                print(i+1,"     ",str(row.cells), "     ",round(row.dist(r1, d), 2))
+
+    def test_far(self):
+        d = Data(self.the, "../data/auto93.csv")
+        a, b, C, _ = d.farapart(d.rows)
+        print(str(a.cells), str(b.cells), round(C, 2))
+        print("Far1: ",str(a.cells))
+        print("Far2: ",str(b.cells))
+        print("distance = ",C)
+
     def run_num_tests(self):
         for test in self.num:
             test()
