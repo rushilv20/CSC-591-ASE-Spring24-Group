@@ -54,3 +54,9 @@ class Utility:
             u.append(t[j])
 
         return u
+    
+    def many(t, n=None):
+        n = n or len(t)
+        return [any(t) for _ in range(n)]
+    #sorted keys
+    

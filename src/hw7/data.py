@@ -1,5 +1,6 @@
 import math
 import csv
+import random
 from sym import SYM
 from rows import ROW
 from cols import COLS
@@ -116,3 +117,12 @@ class Data:
                 rest.append(row)
         
         return Data(self.the, best), Data(self.the, rest)
+    
+    def farapart(self, rows, sortp=None, a=None, b=None):
+        far = int(len(rows) * self.the.Far) // 1
+        evals = 1 if a else 2
+        a = a or random.choice(rows).neighbors(self, rows)[far]
+        b = a.neighbors(self, rows)[far]
+        if sortp and b.d2h(self) < a.d2h(self):
+            a, b = b, a
+        return a, b, a.dist(b, self), evals
