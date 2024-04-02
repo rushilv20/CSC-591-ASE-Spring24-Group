@@ -5,6 +5,7 @@ from sym import SYM
 from rows import ROW
 from cols import COLS
 from util import Utility
+from node import NODE
 
 
 class Data:
@@ -126,3 +127,48 @@ class Data:
         if sortp and b.d2h(self) < a.d2h(self):
             a, b = b, a
         return a, b, a.dist(b, self), evals
+    
+    def half(self,rows,sortp,before):
+        some=self.util.many(rows,min(self.the.Half,len(rows)))
+        a,b,C,d=self.farapart(some,sortp,before)
+        def dist(row1,row2):
+            return row1.dist(row2,self)
+        def project(r):
+            return (dist(r,a)**2+C**2 -dist(r,b)**2)/(2*C)
+        as_, bs=[], []
+        for n, row in enumerate(self.util.keysort(rows,project)):
+            if n<=(len(rows)/2 -1):
+                as_.append(row)
+            else:
+                bs.append(row)
+        return as_,bs,C,dist(a,bs[0]), d
+
+    def tree(self, sortp):
+        evals = 0
+        def _tree(data, above=None):
+            nonlocal evals
+            node = NODE(data)
+            if len(data.rows)>2 * len(self.rows)** 0.5:
+                lefts, rights, node.left, node.right, node.C, node.cut, evals1 = self.half(data.rows, sortp, above)
+                evals = evals + evals1
+                node.lefts = _tree(self.clone(lefts), node.left)
+                node.rights = _tree(self.clone(rights), node.right)
+            return node
+        return _tree(self),evals
+    
+    def branch(self,stop=None  ):
+        evals=1
+        rest=[]
+        if not stop:
+            stop=(2*len(self.rows)**0.5)
+        def _branch(data, above=None, left=None, lefts=None, rights=None):
+            nonlocal evals
+            if len(data.rows) > stop:
+                
+                lefts, rights, left, _, _, _, _ = self.half(data.rows, True, above)
+                evals += 1
+                rest.extend(rights)
+                return _branch(data.clone(lefts), left)
+            else:
+                return self.clone(data.rows), self.clone(rest), evals
+        return _branch(self)

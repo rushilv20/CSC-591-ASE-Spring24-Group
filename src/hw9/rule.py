@@ -1,13 +1,16 @@
 from util import coerce,copy
 
 class RULE:
-    def __init__(self, ranges):
+    def __init__(self, ranges,the):
         self.parts = {}
         self.scored = 0
+        self.the=the
+        rule=self
         for range in ranges:
-            if range.txt not in self.parts:
-                self.parts[range.txt] = []
-            self.parts[range.txt].append(range)
+            k=rule.parts.get(range.txt, [])
+            k.append(range)
+            rule.parts[range.txt] = k
+        # print(rule.parts)
 
     def _or(self, ranges, row):
         
@@ -17,7 +20,8 @@ class RULE:
         for range in ranges:
             
             lo, hi = range.x['lo'], range.x['hi']
-            x, lo, hi = coerce(x), coerce(lo), coerce(hi)
+            # x, lo, hi = coerce(x), coerce(lo), coerce(hi)
+
             if (lo == hi and lo == x) or (lo <= x < hi):
                 return True
         return False
@@ -42,13 +46,30 @@ class RULE:
             result[y] = len(self.selects(rows))
         return result
 
-    def show(self):
-        ands = []
+    def _show_less(self, t, ready=False):
+        if not ready:
+            t.sort(key=lambda x: x.x['lo'])
+
+        i, u = 0, []
+        while i < len(t):
+            a = t[i]
+            if i < len(t) - 1:
+                if a.x['hi'] == t[i + 1].x['lo']:
+                    a = a.merge(t[i + 1]) 
+                    i += 1
+            u.append(a)
+            i += 1
+
+        return t if len(u) == len(t) else self._show_less(u, ready=True)
+    
+    def show(self,ands=None):
+        if ands is None:
+            ands = []
         # print(self.parts)
         # print(list(self.parts.values()))
         for ranges in self.parts.values():
             # print(ranges)
-            ors = _showLess(ranges)
+            ors = self._show_less(ranges)
             at = None
             # print("ors: ", ors)
             for i, range in enumerate(ors):
@@ -59,29 +80,3 @@ class RULE:
             ands.append(" or ".join(ors))
         return " and ".join(ands)
       
-"""
-Note : this function is not a part of the class, it is called in show()
-"""
-
-def _showLess(t, ready=False):
-    if not ready:
-        t = t[:]
-        # print(t)
-        t = sorted(t, key=lambda x: x.x['lo'])
-    u = []
-    i = 0
-    # print(len(t))
-    while i < len(t):
-        a = t[i]
-        if i < len(t) - 1:
-            if a.x['hi'] == t[i + 1].x['lo']:
-                a = a.merge(t[i + 1])
-                i += 1
-        u.append(a)
-        i += 1
-    
-    if(len(u)==len(t)):
-        # print("Showless:", t)
-        return t
-    else:
-        return _showLess(u, ready=True)
