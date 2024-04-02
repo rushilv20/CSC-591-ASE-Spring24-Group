@@ -1,10 +1,9 @@
-date : 03/03/2024 15:05:14
+date : 04/04/2024 11:05:14
 file : ../data/auto93.csv
 repeats : 20
 seed : 31210
 rows : 398
 cols : 8
-
 names                      	Clndrs       Volume       HpX          Model        origin       Lbs-         Acc+         Mpg+      	D2h-
 mid                        	5.45         193.43       104.47       76.01        1            2970.42      15.57        23.84        0.54      
 div                        	1.7          104.27       38.49        3.7          1.33         846.84       2.76         8.34         0.16      
@@ -54,7 +53,7 @@ any50                        	4            97           46           73         
 100%                        	4            97           52           82           2            2130         24.6         40           0.17      
 
 
-date : 03/05/2024 09:05:40
+date : 03/03/2024 15:05:40
 file : ../data/auto93.csv
 repeats : 20
 seed : 31210
@@ -62,7 +61,6 @@ rows : 398
 cols : 8
 best : 0.17
 tiny : 0.06
-
 #base #bonr9 #rand9 #bonr15 #rand15 #bonr20 #rand20 #rand358
 #report8
 #
