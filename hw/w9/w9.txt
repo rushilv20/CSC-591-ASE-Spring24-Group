@@ -1,0 +1,37 @@
+﻿OUTPUT 1:
+
+{ at: 0, scored: 0.0, txt: Clndrs, x: {'hi': 5, 'lo': -inf}, y: {'LIKE': 22, 'HATE': 21} }
+{ at: 0, scored: 0.0, txt: Clndrs, x: {'hi': inf, 'lo': 5}, y: {'LIKE': 2, 'HATE': 51} }
+
+{ at: 1, scored: 0.0, txt: Volume, x: {'hi': 116, 'lo': -inf}, y: {'LIKE': 13, 'HATE': 5} }
+{ at: 1, scored: 0.0, txt: Volume, x: {'hi': 163, 'lo': 116}, y: {'LIKE': 11, 'HATE': 17} }
+{ at: 1, scored: 0.0, txt: Volume, x: {'hi': inf, 'lo': 163}, y: {'HATE': 50} }
+
+{ at: 2, scored: 0.0, txt: HpX, x: {'hi': 78, 'lo': -inf}, y: {'LIKE': 7, 'HATE': 10} }
+{ at: 2, scored: 0.0, txt: HpX, x: {'hi': 92, 'lo': 78}, y: {'LIKE': 6, 'HATE': 24} }
+{ at: 2, scored: 0.0, txt: HpX, x: {'hi': 103, 'lo': 92}, y: {'LIKE': 4, 'HATE': 12} }
+{ at: 2, scored: 0.0, txt: HpX, x: {'hi': inf, 'lo': 103}, y: {'LIKE': 5, 'HATE': 24} }
+
+{ at: 3, scored: 0.0, txt: Model, x: {'hi': 73, 'lo': -inf}, y: {'HATE': 14} }
+{ at: 3, scored: 0.0, txt: Model, x: {'hi': 75, 'lo': 73}, y: {'HATE': 17, 'LIKE': 3} }
+{ at: 3, scored: 0.0, txt: Model, x: {'hi': 76, 'lo': 75}, y: {'LIKE': 7, 'HATE': 11} }
+{ at: 3, scored: 0.0, txt: Model, x: {'hi': 77, 'lo': 76}, y: {'LIKE': 3, 'HATE': 4} }
+{ at: 3, scored: 0.0, txt: Model, x: {'hi': 78, 'lo': 77}, y: {'LIKE': 5, 'HATE': 10} }
+{ at: 3, scored: 0.0, txt: Model, x: {'hi': 80, 'lo': 78}, y: {'HATE': 9, 'LIKE': 4} }
+{ at: 3, scored: 0.0, txt: Model, x: {'hi': inf, 'lo': 80}, y: {'LIKE': 2, 'HATE': 7} }
+
+{ at: 4, scored: 0.0, txt: origin, x: {'hi': 1, 'lo': 1}, y: {'HATE': 70} }
+{ at: 4, scored: 0.0, txt: origin, x: {'hi': 2, 'lo': 2}, y: {'LIKE': 24, 'HATE': 2} }
+
+OUTPUT 2:
+
+#scores:
+
+0.97 { at: 4, scored: 0.0, txt: origin, x: {'hi': 2, 'lo': 2}, y: {'LIKE': 24, 'HATE': 2} }
+0.7 { at: 0, scored: 0.0, txt: Clndrs, x: {'hi': 5, 'lo': -inf}, y: {'LIKE': 22, 'HATE': 21} }
+0.48 { at: 1, scored: 0.0, txt: Volume, x: {'hi': 116, 'lo': -inf}, y: {'LIKE': 13, 'HATE': 5} }
+0.3 { at: 1, scored: 0.0, txt: Volume, x: {'hi': 163, 'lo': 116}, y: {'LIKE': 11, 'HATE': 17} }
+0.2 { at: 2, scored: 0.0, txt: HpX, x: {'hi': 78, 'lo': -inf}, y: {'LIKE': 7, 'HATE': 10} }
+0.19 { at: 3, scored: 0.0, txt: Model, x: {'hi': 76, 'lo': 75}, y: {'LIKE': 7, 'HATE': 11} }
+0.13 { at: 3, scored: 0.0, txt: Model, x: {'hi': 78, 'lo': 77}, y: {'LIKE': 5, 'HATE': 10} }
+{'LIKE': 24, 'HATE': 72}
