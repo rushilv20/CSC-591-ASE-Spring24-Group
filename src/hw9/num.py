@@ -1,8 +1,9 @@
 import math
-from util import coerce
+#define class and initialize
 class NUM:
     cohen = 0.35
-    def __init__(self, s=None, n=None):
+    # constructor for NUM
+    def __init__(self, the, s=None, n=None):
         self.txt = s or " "
         self.at = n or 0
         self.n = 0
@@ -10,10 +11,13 @@ class NUM:
         self.m2 = 0
         self.hi = float("-inf")
         self.lo = float("inf")
-        self.heaven = 0 if s and s.endswith("-") else 1
+        self.heaven = 0 if (s or "").endswith("-") else 1
+        self.the = the
 
+    # --UPDATE
+    # add()
     def add(self, x):
-        if not x == "?":
+        if x != "?":
             self.n += 1
             d = x - self.mu
             self.mu += d / self.n
@@ -21,27 +25,31 @@ class NUM:
             self.lo = min(x, self.lo)
             self.hi = max(x, self.hi)
 
+    # --QUERY
+    # mid()
     def mid(self):
         return self.mu
-
+    
+    # div()
     def div(self):
         return 0 if self.n < 2 else (self.m2 / (self.n - 1))**0.5
-    
-    def small (self):
-        return self.cohen * self.div()
-    
-    def norm (self, x):
-        return x if x == "?" else (x - self.lo) / (self.hi - self.lo + 1E-30)
 
+    # small()
+    def small(self):
+        return self.the.cohen * self.div()
+
+    # norm ()
+    def norm(self, x):
+        return x if x == "?" else (x - self.lo) / (self.hi - self.lo + 1E-30)
+    
+    # like ()
     def like(self, x, _):
         mu, sd = self.mid(), (self.div() + 1E-30)
-        num = 2.718 ** (-0.5 * (x - mu) ** 2 / (sd ** 2))
-        denum = (sd * 2.5 + 1E-30)
-        return num / denum
+        nom = 2.718 ** (-0.5 * (x - mu) ** 2 / (sd ** 2))
+        denom = (sd * 2.5 + 1E-30)
+        return nom / denom
     
-#addition for homework5
-#--distance
-
+    #dist ()
     def dist(self, x, y):
         if x == "?" and y == "?":
             return 1
@@ -51,12 +59,8 @@ class NUM:
         if y == "?":
             y = 1 if x < 0.5 else 0
         return abs(x - y)
-    
-#function NUM:bin(x,     tmp)
-#   tmp = (self.hi - self.lo) / (the.bins - 1)
-#   return self.hi == self.lo and 1 or math.floor(x / tmp + .5) * tmp end
-#--bin
 
-    def bin(self, x,the):
-        tmp = (self.hi - self.lo) / (the['bins'] - 1)
+    #bin ()
+    def bin(self, x):
+        tmp = (self.hi - self.lo) / (self.the.bins - 1)
         return 1 if self.hi == self.lo else math.floor(x / tmp + 0.5) * tmp

@@ -16,14 +16,14 @@ class Cols:
             col = NUM(self.the, name, index) if re.match("^[A-Z]", name) else SYM(self.the, name, index)
             self.all.append(col)
 
-            # if not name.endswith("X"):
-            if name.endswith("!"):
-                self.klass = col
+            if not name.endswith("X"):
+                if name.endswith("!"):
+                    self.klass = col
 
-            if re.search("[!+-]$", name):
-                self.y.append(col)
-            else:
-                self.x.append(col)
+                if re.search("[!+-]$", name):
+                    self.y.append(col)
+                else:
+                    self.x.append(col)
 
     def add(self, row):
         for columns in [self.x, self.y]:

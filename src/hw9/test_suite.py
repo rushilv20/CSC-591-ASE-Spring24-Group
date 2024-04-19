@@ -11,8 +11,12 @@ import stats
 import re
 import random
 import math
-from util import Utility
+from Utility import Utility
 from datetime import datetime
+from sklearn.cluster import KMeans
+from sklearn.cluster import SpectralClustering
+from sklearn.metrics import silhouette_score
+from sklearn.mixture import GaussianMixture
 
 class Tests():
     def __init__(self, the) -> None:
@@ -333,6 +337,7 @@ class Tests():
         best, rest, evals = d.branch()
         best_data = [round(cell, 2) for cell in best.mid().cells]
         print("Best: {0}".format(best_data))
+        print("TESTING", best.mid().d2h(d), evals)
         rest_data = [round(cell, 2) for cell in rest.mid().cells]
         print("Rest: {0}".format(rest_data))
         print("evals: {0}".format(evals))
@@ -482,7 +487,7 @@ class Tests():
     def test_stats(self):
         self.reset_to_default_seed()
         smo_repeat_time = 20
-        self.the.file = "../data/auto93.csv"
+        # self.the.file = "../data/auto93.csv"
 
         d = DATA(self.the, self.the.file)
 
@@ -665,6 +670,919 @@ class Tests():
                     "\t\t\t",
                     rule.show()
                 )
+
+    def test_project(self):
+        self.reset_to_default_seed()
+        smo_repeat_time = 20
+        self.the.file = "../data/auto93.csv"
+
+        d = DATA(self.the, self.the.file)
+
+        print("date : {0}".format(datetime.now().strftime("%d/%m/%Y %H:%M:%S")))
+        print("file : {0}".format(self.the.file))
+        print("repeats : {0}".format(smo_repeat_time))
+        print("seed : {0}".format(self.the.seed))
+        print("rows : {0}".format(len(d.rows)))
+        print("cols : {0}".format(len(d.cols.names.cells)))
+
+        # Best
+        sorted_d = sorted(d.rows, key=lambda a: a.d2h(d))
+        print("best : {0}".format(round(sorted_d[0].d2h(d), 2)))
+
+        # Tiny
+        d2h_values = [row.d2h(d) for row in d.rows]
+        mean = sum(d2h_values) / len(d2h_values)
+        squared_diffs = [(x - mean) ** 2 for x in d2h_values]
+        mean_squared_diff = sum(squared_diffs) / len(squared_diffs)
+        standard_deviation = (mean_squared_diff) ** 0.5
+        tiny_value = 0.35 * standard_deviation
+        print("tiny : {0}".format(round(tiny_value, 2)))
+
+        test_case = ["base", "bonr9", "rand9",
+                    "bonr15", "rand15", "rrp4",
+                    "bonr25", "rand25", "rrp5",
+                    "bonr35", "rand35", "rrp6",
+                    "bonr35", "rand35", "rrp7", "rrp8", "rrp9",
+                    "rand358"]
+        # test_case = ["base", "bonr9", "rand9", "bonr15", "rand15", "bonr20", "rand20", "rand358", "bonr30", "bonr40", "bonr50", "bonr60"]
+        test_case_n = len(test_case)
+
+        test_case_output = ' '.join(f"#{item}" for item in test_case)
+        print(test_case_output)
+        print("#report{0}".format(test_case_n))
+
+        stat_dict = {}
+
+        # Do base first
+        d = DATA(self.the, self.the.file)
+        d2h_list = [round(row.d2h(d), 2) for row in d.rows]
+        stat_dict["base"] = d2h_list
+
+        for _ in range(20):
+            for test_type in test_case:
+                if test_type.startswith("base"):
+                    continue
+                elif test_type.startswith("bonr"):
+                    match = re.search(r'\d+', test_type)
+                    if not match:
+                        continue
+                    total_budget = int(match.group())
+
+                    d2h_list = stat_dict.get(test_type, [])
+
+                    budget0 = 4
+                    budget = total_budget - budget0
+                    some = 0.5
+
+                    d = DATA(self.the, self.the.file)
+                    _, bests = d.gate(budget0, budget, some)
+                    bests.sort(key=lambda a: a.d2h(d))
+                    d2h_list.append(round(bests[0].d2h(d), 2))
+
+                    stat_dict[test_type] = d2h_list
+                elif test_type[0] == 'b' and test_type[1:].isdigit():
+                    match = re.search(r'\d+', test_type)
+                    if not match:
+                        continue
+                    total_budget = int(match.group())
+
+                    d2h_list = stat_dict.get(test_type, [])
+
+                    budget0 = 4
+                    budget = total_budget - budget0
+                    some = 0.5
+
+                    d = DATA(self.the, self.the.file)
+                    _, bests = d.gate(budget0, budget, some, acquisition_type="b")
+                    bests.sort(key=lambda a: a.d2h(d))
+                    d2h_list.append(round(bests[0].d2h(d), 2))
+
+                    stat_dict[test_type] = d2h_list
+                elif test_type.startswith("rrp"):
+                    d2h_list = stat_dict.get(test_type, [])
+                    match = re.search(r'\d+', test_type)
+                    if not match:
+                        continue
+
+                    tree_depth = int(match.group())
+                    best, rest, evals = d.branch(stop=tree_depth)
+
+                    d2h_list.append(best.mid().d2h(d))
+                    stat_dict[test_type] = d2h_list
+                elif test_type.startswith("kmeans"):
+                    import numpy as np
+
+                    x_value_list = None
+                elif test_type.startswith("rand"):
+                    match = re.search(r'\d+', test_type)
+                    if not match:
+                        continue
+                    budget = int(match.group())
+
+                    d2h_list = stat_dict.get(test_type, [])
+
+                    d = DATA(self.the, self.the.file)
+                    best_d2h_in_random_rows = self._get_best_d2h_with_rand(d, budget)
+                    d2h_list.append(round(best_d2h_in_random_rows, 2))
+                    stat_dict[test_type] = d2h_list
+                else:
+                    # Unsupported type
+                    continue
+
+        slurp_list = []
+        for key, item in stat_dict.items():
+            slurp_list.append(stats.SAMPLE(item, key))
+        eg0(slurp_list)
+
+    def find_best_kmeans_parameter(self):
+        # Used to find to best parameter for kmeans
+
+        self.reset_to_default_seed()
+        self.the.file = "../data/auto93.csv"
+        self.the.file = "../data/SS-A.csv"
+        self.the.file = "../data/SS-B.csv"
+        self.the.file = "../data/SS-C.csv"
+        self.the.file = "../data/SS-D.csv"
+
+        print("Data file: {0}".format(self.the.file))
+
+        d = DATA(self.the, self.the.file)
+
+        print("Size of data: {0}".format(len(d.rows)))
+
+        import numpy as np
+
+        x_data_rows = []
+        for row in d.rows:
+            new_x_data = []
+            for x_field in d.cols.x:
+                new_x_data.append(row.cells[x_field.at])
+            x_data_rows.append(new_x_data)
+
+        data_array = np.array(x_data_rows)
+
+        init_methods = ['k-means++', 'random']
+        max_iter_options = [100, 300, 500, 1000]
+        best_score = -1
+        best_params = {}
+
+        for init in init_methods:
+            for max_iter in max_iter_options:
+                kmeans = KMeans(n_clusters=2, init=init, max_iter=max_iter, random_state=self.the.seed)
+                labels = kmeans.fit_predict(data_array)
+                score = silhouette_score(data_array, labels)
+                print(f"Init method: {init}, max_iter: {max_iter}, Silhouette Score: {score}")
+
+                if score > best_score:
+                    best_score = score
+                    best_params = {'init': init, 'max_iter': max_iter}
+
+        print("\n[Best configuration]")
+        print("Best Init method:", best_params['init'])
+        print("Best max_iter:", best_params['max_iter'])
+
+
+    def test_kmeans(self):
+        DEFAULT_BEST_MAX_ITER = 100
+        self.reset_to_default_seed()
+        self.the.file = "../../data/auto93.csv"
+        #self.the.file = "../data/SS-A.csv"
+
+
+        print("Data file: {0}".format(self.the.file))
+
+        d = DATA(self.the, self.the.file)
+
+        print("Size of data: {0}".format(len(d.rows)))
+
+        import numpy as np
+
+        x_data_rows = []
+        for row in d.rows:
+            new_x_data = []
+            for x_field in d.cols.x:
+                new_x_data.append(row.cells[x_field.at])
+            x_data_rows.append(new_x_data)
+
+        data_array = np.array(x_data_rows)
+
+        kmeans = KMeans(n_clusters=2, init='k-means++', max_iter=DEFAULT_BEST_MAX_ITER, random_state=self.the.seed)
+        kmeans.fit(data_array)
+
+        labels = kmeans.labels_
+
+        a = [d.cols.names]
+        b = [d.cols.names]
+
+        for index, row in enumerate(d.rows):
+            if labels[index] == 0:
+                a.append(row)
+            else:
+                b.append(row)
+
+        a_data = DATA(self.the, a)
+        b_data = DATA(self.the, b)
+
+        print("")
+        print("Size of cluster A(0): {0}".format(len(a_data.rows)))
+        print("Size of cluster B(1): {0}".format(len(b_data.rows)))
+
+        a_mid_row = a_data.mid()
+        b_mid_row = b_data.mid()
+
+        a_mid_row_cells = [round(a_mid_row.cells[field.at], 2) for field in d.cols.all]
+        b_mid_row_cells = [round(b_mid_row.cells[field.at], 2) for field in d.cols.all]
+
+        print("")
+        field_name = [field.txt for field in d.cols.all]
+        print("              {0}".format(field_name))
+        print("[A(0)] Mid row = {0}".format(a_mid_row_cells))
+        print("[B(1)] Mid row = {0}".format(b_mid_row_cells))
+
+        a_d2h = a_data.mid().d2h(d)
+        b_d2h = b_data.mid().d2h(d)
+
+        print("")
+        print("[A(0)] Mid d2h = {0}".format(a_d2h))
+        print("[B(1)] Mid d2h = {0}".format(b_d2h))
+
+        if a_d2h <= b_d2h:
+            best = a_data
+            rest = b_data
+        else:
+            best = b_data
+            rest = a_data
+
+
+
+    def test_rkmeans(self):
+        self.reset_to_default_seed()
+        self.the.file = "../data/auto93.csv"
+        #self.the.file = "../data/SS-A.csv"
+
+        print("Data file: {0}".format(self.the.file))
+
+        data = DATA(self.the, self.the.file)
+
+        best9, best9_d2h, evals = data.recursive_kmeans(9)
+        best7, best7_d2h, evals = data.recursive_kmeans(7)
+        best5, best5_d2h, evals = data.recursive_kmeans(5)
+
+        best9_mid = best9.mid()
+        best7_mid = best7.mid()
+        best5_mid = best5.mid()
+
+        best9_cell = [round(best9_mid.cells[field.at], 2) for field in data.cols.all]
+        best7_cell = [round(best7_mid.cells[field.at], 2) for field in data.cols.all]
+        best5_cell = [round(best5_mid.cells[field.at], 2) for field in data.cols.all]
+
+        print("")
+        field_name = [field.txt for field in data.cols.all]
+        print("           {0}".format(field_name))
+        print("Best Row (9) = {0}".format(best9_cell))
+        print("d2h = {0}\n".format(best9_d2h))
+        print("Best Row (7) = {0}".format(best7_cell))
+        print("d2h = {0}\n".format(best7_d2h))
+        print("Best Row (5) = {0}".format(best5_cell))
+        print("d2h = {0}\n".format(best5_d2h))
+
+    def test_rspectral_clustering(self):
+        self.reset_to_default_seed()
+        self.the.file = "../data/auto93.csv"
+        #self.the.file = "../data/SS-A.csv"
+
+        print("Data file: {0}".format(self.the.file))
+
+        data = DATA(self.the, self.the.file)
+
+        best9, best9_d2h, evals = data.recursive_spectral_clustering(9)
+        best7, best7_d2h, evals = data.recursive_spectral_clustering(7)
+        best5, best5_d2h, evals = data.recursive_spectral_clustering(5)
+
+        best9_mid = best9.mid()
+        best7_mid = best7.mid()
+        best5_mid = best5.mid()
+
+        best9_cell = [round(best9_mid.cells[field.at], 2) for field in data.cols.all]
+        best7_cell = [round(best7_mid.cells[field.at], 2) for field in data.cols.all]
+        best5_cell = [round(best5_mid.cells[field.at], 2) for field in data.cols.all]
+
+        print("")
+        field_name = [field.txt for field in data.cols.all]
+        print("           {0}".format(field_name))
+        print("Best Row (9) = {0}".format(best9_cell))
+        print("d2h = {0}\n".format(best9_d2h))
+        print("Best Row (7) = {0}".format(best7_cell))
+        print("d2h = {0}\n".format(best7_d2h))
+        print("Best Row (5) = {0}".format(best5_cell))
+        print("d2h = {0}\n".format(best5_d2h))
+
+    def test_rgaussian_mixtures(self):
+        self.reset_to_default_seed()
+        self.the.file = "../data/auto93.csv"
+        #self.the.file = "../data/SS-A.csv"
+
+        print("Data file: {0}".format(self.the.file))
+
+        data = DATA(self.the, self.the.file)
+
+        # 7 is the maximum we can choose for no of evaluations since after 8 the number of elements in the best row is less than 2 which will raise an error since Gaussian mizxture requires at least 2 samples to fit the data.
+        best9, best9_d2h, evals = data.recursive_gaussian_mixtures(7)
+        best7, best7_d2h, evals = data.recursive_gaussian_mixtures(5)
+        best5, best5_d2h, evals = data.recursive_gaussian_mixtures(3)
+
+        best9_mid = best9.mid()
+        best7_mid = best7.mid()
+        best5_mid = best5.mid()
+
+        best9_cell = [round(best9_mid.cells[field.at], 2) for field in data.cols.all]
+        best7_cell = [round(best7_mid.cells[field.at], 2) for field in data.cols.all]
+        best5_cell = [round(best5_mid.cells[field.at], 2) for field in data.cols.all]
+
+        print("")
+        field_name = [field.txt for field in data.cols.all]
+        print("           {0}".format(field_name))
+        print("Best Row (9) = {0}".format(best9_cell))
+        print("d2h = {0}\n".format(best9_d2h))
+        print("Best Row (7) = {0}".format(best7_cell))
+        print("d2h = {0}\n".format(best7_d2h))
+        print("Best Row (5) = {0}".format(best5_cell))
+        print("d2h = {0}\n".format(best5_d2h))
+
+    def find_best_n_neighbors_for_sc(self):
+        # Used to find to best parameter for spectral_clustering
+
+        import warnings
+        warnings.filterwarnings("ignore", message="Graph is not fully connected, spectral embedding may not work as expected.")
+
+        self.reset_to_default_seed()
+        self.the.file = "../data/auto93.csv"
+        #self.the.file = "../data/SS-A.csv"
+        #self.the.file = "../data/SS-B.csv"
+        #self.the.file = "../data/SS-C.csv"
+
+        print("Data file: {0}".format(self.the.file))
+
+        d = DATA(self.the, self.the.file)
+
+        print("Size of data: {0}".format(len(d.rows)))
+
+        import numpy as np
+
+        x_data_rows = []
+        for row in d.rows:
+            new_x_data = []
+            for x_field in d.cols.x:
+                new_x_data.append(row.cells[x_field.at])
+            x_data_rows.append(new_x_data)
+
+        data_array = np.array(x_data_rows)
+
+        best_score = -1
+        best_n = 0
+        for n in range(10, 81, 10):
+
+            try:
+                model = SpectralClustering(n_clusters=2, affinity='nearest_neighbors', n_neighbors=n)
+                labels = model.fit_predict(data_array)
+            except Warning as e:
+                print("[n_neighbors = {0}]Spectral Clustering may not perform as expected due to data connectivity issues.".format(n))
+
+            score = silhouette_score(data_array, labels)
+            if score > best_score:
+                best_score = score
+                best_n = n
+
+        print("Best n_neighbors:", best_n)
+        print("Best silhouette score:", best_score)
+
+    def test_spectral_clustering(self):
+        DEFAULT_BEST_N_NEIGHBORS = 50
+
+        self.reset_to_default_seed()
+        self.the.file = "../data/auto93.csv"
+        #self.the.file = "../data/SS-A.csv"
+
+        print("Data file: {0}".format(self.the.file))
+
+        d = DATA(self.the, self.the.file)
+
+        print("Size of data: {0}".format(len(d.rows)))
+
+        import numpy as np
+
+        x_data_rows = []
+        for row in d.rows:
+            new_x_data = []
+            for x_field in d.cols.x:
+                new_x_data.append(row.cells[x_field.at])
+            x_data_rows.append(new_x_data)
+
+        data_array = np.array(x_data_rows)
+
+        model = SpectralClustering(n_clusters=2, affinity='nearest_neighbors', n_neighbors=DEFAULT_BEST_N_NEIGHBORS)
+
+        labels = model.fit_predict(data_array)
+
+        a = [d.cols.names]
+        b = [d.cols.names]
+
+        for index, row in enumerate(d.rows):
+            if labels[index] == 0:
+                a.append(row)
+            else:
+                b.append(row)
+
+        a_data = DATA(self.the, a)
+        b_data = DATA(self.the, b)
+
+        print("")
+        print("Size of cluster A(0): {0}".format(len(a_data.rows)))
+        print("Size of cluster B(1): {0}".format(len(b_data.rows)))
+
+        a_mid_row = a_data.mid()
+        b_mid_row = b_data.mid()
+
+        a_mid_row_cells = [round(a_mid_row.cells[field.at], 2) for field in d.cols.all]
+        b_mid_row_cells = [round(b_mid_row.cells[field.at], 2) for field in d.cols.all]
+
+        print("")
+        field_name = [field.txt for field in d.cols.all]
+        print("              {0}".format(field_name))
+        print("[A(0)] Mid row = {0}".format(a_mid_row_cells))
+        print("[B(1)] Mid row = {0}".format(b_mid_row_cells))
+
+        a_d2h = a_data.mid().d2h(d)
+        b_d2h = b_data.mid().d2h(d)
+
+        print("")
+        print("[A(0)] Mid d2h = {0}".format(a_d2h))
+        print("[B(1)] Mid d2h = {0}".format(b_d2h))
+
+        if a_d2h <= b_d2h:
+            best = a_data
+            rest = b_data
+        else:
+            best = b_data
+            rest = a_data
+
+    def find_best_parameter_for_gaussian_mixtures(self):
+        # Used to find to best parameter for spectral_clustering
+        self.reset_to_default_seed()
+        self.the.file = "../data/auto93.csv"
+        #self.the.file = "../data/SS-A.csv"
+        #self.the.file = "../data/SS-B.csv"
+        #self.the.file = "../data/SS-C.csv"
+
+        print("Data file: {0}".format(self.the.file))
+
+        d = DATA(self.the, self.the.file)
+
+        print("Size of data: {0}".format(len(d.rows)))
+
+        import numpy as np
+
+        x_data_rows = []
+        for row in d.rows:
+            new_x_data = []
+            for x_field in d.cols.x:
+                new_x_data.append(row.cells[x_field.at])
+            x_data_rows.append(new_x_data)
+
+        data_array = np.array(x_data_rows)
+
+        covariance_types = ['full', 'tied', 'diag', 'spherical']
+        tols = [0.001, 0.01, 0.1]
+        max_iters = [100, 200, 300]
+
+        best_gmm = None
+        lowest_bic = np.inf
+
+        best_covariance_type = None
+        best_tol = None
+        best_max_iter = None
+
+        for covariance_type in covariance_types:
+            for tol in tols:
+                for max_iter in max_iters:
+                    gmm = GaussianMixture(n_components=2, covariance_type=covariance_type,
+                                          tol=tol, max_iter=max_iter, random_state=0)
+                    gmm.fit(data_array)
+
+                    bic = gmm.bic(data_array)
+                    if bic < lowest_bic:
+                        lowest_bic = bic
+                        best_gmm = gmm
+                        best_covariance_type = covariance_type
+                        best_tol = tol
+                        best_max_iter = max_iter
+
+        print("Best GMM:", best_gmm)
+        print("best_covariance_type = {0}".format(best_covariance_type))
+        print("best_tol = {0}".format(best_tol))
+        print("best_max_iter = {0}".format(best_max_iter))
+
+    def test_gaussian_mixtures(self):
+        DEFAULT_COVARIANCE_TYPE = "full"
+        DEFAULT_MAX_ITER = 100
+
+        self.reset_to_default_seed()
+        self.the.file = "../data/auto93.csv"
+        #self.the.file = "../data/SS-A.csv"
+
+        print("Data file: {0}".format(self.the.file))
+
+        d = DATA(self.the, self.the.file)
+
+        print("Size of data: {0}".format(len(d.rows)))
+
+        import numpy as np
+
+        x_data_rows = []
+        for row in d.rows:
+            new_x_data = []
+            for x_field in d.cols.x:
+                new_x_data.append(row.cells[x_field.at])
+            x_data_rows.append(new_x_data)
+
+        data_array = np.array(x_data_rows)
+
+        model = GaussianMixture(n_components=2, covariance_type=DEFAULT_COVARIANCE_TYPE, max_iter=DEFAULT_MAX_ITER, random_state=0)
+
+        model.fit(data_array)
+
+        labels = model.predict(data_array)
+
+        a = [d.cols.names]
+        b = [d.cols.names]
+
+        for index, row in enumerate(d.rows):
+            if labels[index] == 0:
+                a.append(row)
+            else:
+                b.append(row)
+
+        a_data = DATA(self.the, a)
+        b_data = DATA(self.the, b)
+
+        print("")
+        print("Size of cluster A(0): {0}".format(len(a_data.rows)))
+        print("Size of cluster B(1): {0}".format(len(b_data.rows)))
+
+        a_mid_row = a_data.mid()
+        b_mid_row = b_data.mid()
+
+        a_mid_row_cells = [round(a_mid_row.cells[field.at], 2) for field in d.cols.all]
+        b_mid_row_cells = [round(b_mid_row.cells[field.at], 2) for field in d.cols.all]
+
+        print("")
+        field_name = [field.txt for field in d.cols.all]
+        print("              {0}".format(field_name))
+        print("[A(0)] Mid row = {0}".format(a_mid_row_cells))
+        print("[B(1)] Mid row = {0}".format(b_mid_row_cells))
+
+        a_d2h = a_data.mid().d2h(d)
+        b_d2h = b_data.mid().d2h(d)
+
+        print("")
+        print("[A(0)] Mid d2h = {0}".format(a_d2h))
+        print("[B(1)] Mid d2h = {0}".format(b_d2h))
+
+        if a_d2h <= b_d2h:
+            best = a_data
+            rest = b_data
+        else:
+            best = b_data
+            rest = a_data
+
+    def test_generalize_rrp(self):
+        self.reset_to_default_seed()
+        smo_repeat_time = 20
+        #self.the.file = "../data/auto93.csv"
+        # self.the.file = "../data/SS-A.csv"
+        # self.the.file = "../data/SS-B.csv"
+        # self.the.file = "../data/SS-C.csv"
+        # self.the.file = "../data/SS-D.csv"
+        # self.the.file = "../data/SS-E.csv"
+        # self.the.file = "../data/SS-F.csv"
+        # self.the.file = "../data/SS-G.csv"
+        # self.the.file = "../data/SS-H.csv"
+        # self.the.file = "../data/SS-I.csv"
+        # self.the.file = "../data/SS-J.csv"
+        self.the.file = "../data/SS-K.csv"
+        # self.the.file = "../data/SS-L.csv"
+        # self.the.file = "../data/SS-M.csv"
+        # self.the.file = "../data/SS-N.csv"
+
+        d = DATA(self.the, self.the.file)
+
+        print("date : {0}".format(datetime.now().strftime("%d/%m/%Y %H:%M:%S")))
+        print("file : {0}".format(self.the.file))
+        print("repeats : {0}".format(smo_repeat_time))
+        print("seed : {0}".format(self.the.seed))
+        print("rows : {0}".format(len(d.rows)))
+        print("cols : {0}".format(len(d.cols.names.cells)))
+
+        # Best
+        sorted_d = sorted(d.rows, key=lambda a: a.d2h(d))
+        print("best : {0}".format(round(sorted_d[0].d2h(d), 2)))
+
+        # Tiny
+        d2h_values = [row.d2h(d) for row in d.rows]
+        mean = sum(d2h_values) / len(d2h_values)
+        squared_diffs = [(x - mean) ** 2 for x in d2h_values]
+        mean_squared_diff = sum(squared_diffs) / len(squared_diffs)
+        standard_deviation = (mean_squared_diff) ** 0.5
+        tiny_value = 0.35 * standard_deviation
+        print("tiny : {0}".format(round(tiny_value, 2)))
+
+        test_case = ["base", "bonr9", "bonr15", "bonr25", "bonr35", "bonr45","b/r9", "b/r15", "b/r25",         "b/r35", "b/r45","rrp_projection", "rrp_kmeans", "rrp_sc", "rrp_gm","rand9", "rand15", "rand25", "rand35", "rand358"]
+        # test_case = ["base", "bonr9", "rand9", "bonr15", "rand15", "bonr20", "rand20", "rand358", "bonr30", "bonr40", "bonr50", "bonr60"]
+        test_case_n = len(test_case)
+
+        test_case_output = ' '.join(f"#{item}" for item in test_case)
+        print(test_case_output)
+        print("#report{0}".format(test_case_n))
+
+        stat_dict = {}
+
+        # Do base first
+        d = DATA(self.the, self.the.file)
+        d2h_list = [round(row.d2h(d), 2) for row in d.rows]
+        stat_dict["base"] = d2h_list
+
+        for _ in range(20):
+            d = DATA(self.the, self.the.file)
+            for test_type in test_case:
+                if test_type.startswith("base"):
+                    continue
+                elif test_type.startswith("bonr"):
+                    match = re.search(r'\d+', test_type)
+                    if not match:
+                        continue
+                    total_budget = int(match.group())
+
+                    d2h_list = stat_dict.get(test_type, [])
+
+                    budget0 = 4
+                    budget = total_budget - budget0
+                    some = 0.5
+
+                    d = DATA(self.the, self.the.file)
+                    _, bests = d.gate(budget0, budget, some)
+                    bests.sort(key=lambda a: a.d2h(d))
+                    d2h_list.append(round(bests[0].d2h(d), 2))
+
+                    stat_dict[test_type] = d2h_list
+                elif test_type.startswith("b/r"):
+                    match = re.search(r'\d+', test_type)
+                    if not match:
+                        continue
+                    total_budget = int(match.group())
+
+                    d2h_list = stat_dict.get(test_type, [])
+
+                    budget0 = 4
+                    budget = total_budget - budget0
+                    some = 0.5
+
+                    d = DATA(self.the, self.the.file)
+                    _, bests = d.gate2(budget0, budget, some)
+                    bests.sort(key=lambda a: a.d2h(d))
+                    d2h_list.append(round(bests[0].d2h(d), 2))
+
+                    stat_dict[test_type] = d2h_list
+                elif test_type[0] == 'b' and test_type[1:].isdigit():
+                    match = re.search(r'\d+', test_type)
+                    if not match:
+                        continue
+                    total_budget = int(match.group())
+
+                    d2h_list = stat_dict.get(test_type, [])
+
+                    budget0 = 4
+                    budget = total_budget - budget0
+                    some = 0.5
+
+                    d = DATA(self.the, self.the.file)
+                    _, bests = d.gate(budget0, budget, some, acquisition_type="b")
+                    bests.sort(key=lambda a: a.d2h(d))
+                    d2h_list.append(round(bests[0].d2h(d), 2))
+
+                    stat_dict[test_type] = d2h_list
+                elif test_type.startswith("rrp"):
+                    d2h_list = stat_dict.get(test_type, [])
+                    match = re.search(r'rrp_(\w+)', test_type)
+                    if not match:
+                        continue
+
+                    # tree_depth = int(match.group(1))
+                    clustering_algo = match.group(1)
+                    clustering_parameter_dict = {}
+
+                    if clustering_algo == "projection":
+                        best, rest, evals = d.rrp(cluserting_algo_type="projection")
+                    elif clustering_algo == "kmeans":
+                        clustering_parameter_dict["init"] = "k-means++"
+                        clustering_parameter_dict["max_iter"] = 100  # sklearn's default value is 300
+
+                        best, rest, evals = d.rrp(cluserting_algo_type="kmeans", clustering_parameter_dict=clustering_parameter_dict)
+                    elif clustering_algo == "sc":
+                        clustering_parameter_dict["affinity"] = "nearest_neighbors"  # sklearn's default value is "rbf"
+                        clustering_parameter_dict["n_neighbors"] = 50  # sklearn's default value is 10
+
+                        best, rest, evals = d.rrp(cluserting_algo_type="spectral_clustering", clustering_parameter_dict=clustering_parameter_dict)
+                    elif clustering_algo == "gm":
+                        clustering_parameter_dict["covariance_type"] = "full"  # sklearn's default value is "full"
+                        clustering_parameter_dict["max_iter"] = 100  # sklearn's default value is 100
+
+                        best, rest, evals = d.rrp(cluserting_algo_type="gaussian_mixtures", clustering_parameter_dict=clustering_parameter_dict)
+                    else:
+                        raise RuntimeError("Unsupported Clustering Algorithm: {0}".format(clustering_algo))
+
+                    d2h_list.append(best.mid().d2h(d))
+                    stat_dict[test_type] = d2h_list
+                elif test_type.startswith("rand"):
+                    match = re.search(r'\d+', test_type)
+                    if not match:
+                        continue
+                    budget = int(match.group())
+
+                    d2h_list = stat_dict.get(test_type, [])
+
+                    d = DATA(self.the, self.the.file)
+                    best_d2h_in_random_rows = self._get_best_d2h_with_rand(d, budget)
+                    d2h_list.append(round(best_d2h_in_random_rows, 2))
+                    stat_dict[test_type] = d2h_list
+                else:
+                    # Unsupported type
+                    continue
+
+            self.the.seed += 1
+
+        slurp_list = []
+        for key, item in stat_dict.items():
+            slurp_list.append(stats.SAMPLE(item, key))
+        eg0(slurp_list)
+
+    def test_new_rrp(self):
+        self.reset_to_default_seed()
+        smo_repeat_time = 20
+        # self.the.file = "../data/auto93.csv"
+        #self.the.file = "../data/SS-A.csv"
+        #self.the.file = "../data/SS-B.csv"
+        self.the.file = "../data/SS-C.csv"
+
+        d = DATA(self.the, self.the.file)
+
+        print("date : {0}".format(datetime.now().strftime("%d/%m/%Y %H:%M:%S")))
+        print("file : {0}".format(self.the.file))
+        print("repeats : {0}".format(smo_repeat_time))
+        print("seed : {0}".format(self.the.seed))
+        print("rows : {0}".format(len(d.rows)))
+        print("cols : {0}".format(len(d.cols.names.cells)))
+
+        # Best
+        sorted_d = sorted(d.rows, key=lambda a: a.d2h(d))
+        print("best : {0}".format(round(sorted_d[0].d2h(d), 2)))
+
+        # Tiny
+        d2h_values = [row.d2h(d) for row in d.rows]
+        mean = sum(d2h_values) / len(d2h_values)
+        squared_diffs = [(x - mean) ** 2 for x in d2h_values]
+        mean_squared_diff = sum(squared_diffs) / len(squared_diffs)
+        standard_deviation = (mean_squared_diff) ** 0.5
+        tiny_value = 0.35 * standard_deviation
+        print("tiny : {0}".format(round(tiny_value, 2)))
+
+        test_case = ["base", "bonr9", "bonr15", "bonr25", "bonr35", "bonr45",
+                    "rrp4_projection", "rrp5_projection", "rrp6_projection", "rrp7_projection", "rrp8_projection", "rrp9_projection",
+                    "rrp2_kmeans", "rrp3_kmeans", "rrp4_kmeans", "rrp5_kmeans", "rrp6_kmeans", "rrp7_kmeans",
+                    "rrp2_sc", "rrp3_sc", "rrp4_sc", "rrp5_sc", "rrp6_sc", "rrp9_sc",
+                    "rrp2_gm", "rrp3_gm", "rrp4_gm", "rrp5_gm", "rrp6_gm", "rrp9_gm",
+                    "rand9", "rand15", "rand25", "rand35", "rand358"]
+        # test_case = ["base", "bonr9", "rand9", "bonr15", "rand15", "bonr20", "rand20", "rand358", "bonr30", "bonr40", "bonr50", "bonr60"]
+        test_case_n = len(test_case)
+
+        # kmean_depth = math.floor(math.log2(len(d.rows)))
+        # sc_depth = math.floor(math.log2(len(d.rows)))
+        # gm_depth = math.floor(math.log2(len(d.rows)))
+
+        # # Iterate over the array in reverse order
+        # for i in range(len(test_case)-1, -1, -1):
+        #     # If the string starts with 'rrp' and ends with '_kmeans', '_sc', or '_gm'
+        #     if re.match(r'rrp\d+_(kmeans)', test_case[i]):
+        #         # Replace the number with the current max_depth
+        #         test_case[i] = re.sub(r'rrp\d+', f'rrp{kmean_depth}', test_case[i])
+        #         # Decrease max_depth
+        #         kmean_depth -= 1
+        #     if re.match(r'rrp\d+_(sc)', test_case[i]):
+        #         # Replace the number with the current max_depth
+        #         test_case[i] = re.sub(r'rrp\d+', f'rrp{sc_depth}', test_case[i])
+        #         # Decrease max_depth
+        #         sc_depth -= 1
+        #     if re.match(r'rrp\d+_(gm)', test_case[i]):
+        #         # Replace the number with the current max_depth
+        #         test_case[i] = re.sub(r'rrp\d+', f'rrp{gm_depth}', test_case[i])
+        #         # Decrease max_depth
+        #         gm_depth -= 1
+
+        test_case_output = ' '.join(f"#{item}" for item in test_case)
+        print(test_case_output)
+        print("#report{0}".format(test_case_n))
+
+        stat_dict = {}
+
+        # Do base first
+        d = DATA(self.the, self.the.file)
+        d2h_list = [round(row.d2h(d), 2) for row in d.rows]
+        stat_dict["base"] = d2h_list
+
+        for _ in range(20):
+            d = DATA(self.the, self.the.file)
+            for test_type in test_case:
+                if test_type.startswith("base"):
+                    continue
+                elif test_type.startswith("bonr"):
+                    match = re.search(r'\d+', test_type)
+                    if not match:
+                        continue
+                    total_budget = int(match.group())
+
+                    d2h_list = stat_dict.get(test_type, [])
+
+                    budget0 = 4
+                    budget = total_budget - budget0
+                    some = 0.5
+
+                    d = DATA(self.the, self.the.file)
+                    _, bests = d.gate(budget0, budget, some)
+                    bests.sort(key=lambda a: a.d2h(d))
+                    d2h_list.append(round(bests[0].d2h(d), 2))
+
+                    stat_dict[test_type] = d2h_list
+                elif test_type[0] == 'b' and test_type[1:].isdigit():
+                    match = re.search(r'\d+', test_type)
+                    if not match:
+                        continue
+                    total_budget = int(match.group())
+
+                    d2h_list = stat_dict.get(test_type, [])
+
+                    budget0 = 4
+                    budget = total_budget - budget0
+                    some = 0.5
+
+                    d = DATA(self.the, self.the.file)
+                    _, bests = d.gate(budget0, budget, some, acquisition_type="b")
+                    bests.sort(key=lambda a: a.d2h(d))
+                    d2h_list.append(round(bests[0].d2h(d), 2))
+
+                    stat_dict[test_type] = d2h_list
+                elif test_type.startswith("rrp"):
+                    d2h_list = stat_dict.get(test_type, [])
+                    match = re.search(r'rrp(\d+)_(\w+)', test_type)
+                    if not match:
+                        continue
+
+                    tree_depth = int(match.group(1))
+                    clustering_algo = match.group(2)
+                    clustering_parameter_dict = {}
+                    best = d
+
+                    if clustering_algo == "projection":
+                        best, rest, evals = d.rrp(stop=tree_depth, cluserting_algo_type="projection")
+                    elif clustering_algo == "kmeans":
+                        best, d2h, evals = d.recursive_kmeans(tree_depth)
+                    elif clustering_algo == "sc":
+                        best, d2h, evals = d.recursive_spectral_clustering(tree_depth)
+                    elif clustering_algo == "gm":
+                        best, d2h, evals = d.recursive_gaussian_mixtures(tree_depth)
+                    else:
+                        raise RuntimeError("Unsupported Clustering Algorithm: {0}".format(clustering_algo))
+                    d2h_list.append(best.mid().d2h(d))
+                    stat_dict[test_type] = d2h_list
+                elif test_type.startswith("rand"):
+                    match = re.search(r'\d+', test_type)
+                    if not match:
+                        continue
+                    budget = int(match.group())
+
+                    d2h_list = stat_dict.get(test_type, [])
+
+                    d = DATA(self.the, self.the.file)
+                    best_d2h_in_random_rows = self._get_best_d2h_with_rand(d, budget)
+                    d2h_list.append(round(best_d2h_in_random_rows, 2))
+                    stat_dict[test_type] = d2h_list
+                else:
+                    # Unsupported type
+                    continue
+            self.the.seed += 1
+
+        slurp_list = []
+        for key, item in stat_dict.items():
+            slurp_list.append(stats.SAMPLE(item, key))
+        eg0(slurp_list)
 
     def run_num_tests(self):
         for i in self.num:

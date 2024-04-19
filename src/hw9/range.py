@@ -1,5 +1,5 @@
 import math
-from util import Utility
+from Utility import Utility
 
 class RANGE:
   def __init__(self, the, at, txt, lo, hi=None):

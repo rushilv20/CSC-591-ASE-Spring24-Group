@@ -26,7 +26,7 @@ OPTIONS:
 import argparse
 from data import DATA 
 from test_suite import Tests
-from util import Utility
+import Utility
 
 def main():
     parser = argparse.ArgumentParser(description="Perform statistics on a CSV file.")
@@ -55,7 +55,7 @@ def main():
 
     # Initializing the default values
     if (not args.cohen): args.cohen = Utility.DEFAULT_COHEN_VALUE
-    if (not args.file): args.file = "../data/auto93.csv"
+    if (not args.file): args.file = "../../Data/auto93.csv"
     if (not args.bins): args.bins = Utility.DEFAULT_bins_VALUE  # default b=16
     if (not args.Beam): args.Beam = Utility.DEFAULT_Beam_VALUE  # default B=10
     if (not args.seed): args.seed = Utility.DEFAULT_RANDOM_SEED
@@ -101,6 +101,30 @@ def main():
         test.test_rules()
     elif args.task == "rules2":
         test.test_rules2()
+    elif args.task == "project":
+        test.test_project()
+    elif args.task == "kmeans":
+        test.test_kmeans()
+    elif args.task == "km_opt":
+        test.find_best_kmeans_parameter()
+    elif args.task == "rkmeans":
+        test.test_rkmeans()
+    elif args.task == "rsc":
+        test.test_rspectral_clustering()
+    elif args.task == "rgm":
+        test.test_rgaussian_mixtures()
+    elif args.task == "sc":
+        test.test_spectral_clustering()
+    elif args.task == "sc_opt":
+        test.find_best_n_neighbors_for_sc()
+    elif args.task == "gm":
+        test.test_gaussian_mixtures()
+    elif args.task == "gm_opt":
+        test.find_best_parameter_for_gaussian_mixtures()
+    elif args.task == "rrp":
+        test.test_generalize_rrp()
+    elif args.task == "new_rrp":
+        test.test_new_rrp()
     elif args.task == "all":
         test.run_all_tests()
     else:

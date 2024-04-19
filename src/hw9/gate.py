@@ -20,7 +20,7 @@ OPTIONS:
 import argparse
 from data import DATA 
 from test_suite import Tests
-from util import Utility
+from Utility import Utility
 
 def main():
     parser = argparse.ArgumentParser(description="Perform statistics on a CSV file.")
