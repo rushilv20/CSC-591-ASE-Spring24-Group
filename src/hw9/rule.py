@@ -1,50 +1,44 @@
-from util import coerce,copy
-
 class RULE:
-    def __init__(self, ranges,the):
+    def __init__(self, ranges, the):
         self.parts = {}
+        self.the = the
         self.scored = 0
-        self.the=the
-        rule=self
-        for range in ranges:
-            k=rule.parts.get(range.txt, [])
-            k.append(range)
-            rule.parts[range.txt] = k
-        # print(rule.parts)
-
+        rule = self
+    
+        for range_ in ranges:
+            t = rule.parts.get(range_.txt, [])
+            t.append(range_)
+            rule.parts[range_.txt] = t
+    
     def _or(self, ranges, row):
-        
-        x = row.cells[ranges[0].at-1]
+        x = row.cells[ranges[0].at]
         if x == "?":
             return True
-        for range in ranges:
-            
-            lo, hi = range.x['lo'], range.x['hi']
-            # x, lo, hi = coerce(x), coerce(lo), coerce(hi)
-
-            if (lo == hi and lo == x) or (lo <= x < hi):
+        for range_ in ranges:
+            #print(range_.x, type(range_.x))
+            lo, hi = range_.x['lo'], range_.x['hi']
+            if lo == hi and lo == x or lo <= x < hi:
                 return True
         return False
 
     def _and(self, row):
-        for ranges in self.parts.values():
+        for _, ranges in self.parts.items():
             if not self._or(ranges, row):
                 return False
         return True
 
     def selects(self, rows):
-        selected = []
+        t = []
         for r in rows:
             if self._and(r):
-                # print("Hi")
-                selected.append(r)
-        return selected
-
+                t.append(r)
+        return t
+    
     def selectss(self, rowss):
-        result = {}
+        t = {}
         for y, rows in rowss.items():
-            result[y] = len(self.selects(rows))
-        return result
+            t[y] = len(self.selects(rows))
+        return t
 
     def _show_less(self, t, ready=False):
         if not ready:
@@ -62,21 +56,20 @@ class RULE:
 
         return t if len(u) == len(t) else self._show_less(u, ready=True)
     
-    def show(self,ands=None):
+    def show(self, ands=None):
+        #print("inside show")
         if ands is None:
             ands = []
-        # print(self.parts)
-        # print(list(self.parts.values()))
-        for ranges in self.parts.values():
-            # print(ranges)
+        #print(self.parts.items())
+        for _, ranges in self.parts.items():
+            #print(ranges)
             ors = self._show_less(ranges)
             at = None
-            # print("ors: ", ors)
-            for i, range in enumerate(ors):
-                # print(type(range))
-                at = range.at
-                ors[i] = range.show()
-                # print(ors)
+            for i, range_ in enumerate(ors):
+                at = range_.at
+                ors[i] = range_.show()
             ands.append(" or ".join(ors))
         return " and ".join(ands)
-      
+
+
+    

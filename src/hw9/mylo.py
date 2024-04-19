@@ -25,7 +25,7 @@ OPTIONS:
 #mylo.py
 import argparse
 from data import DATA 
-from test_suite import TestSuite as Tests
+from test_suite import Tests
 from util import Utility
 
 def main():
@@ -91,10 +91,16 @@ def main():
         test.test_branch()
     elif args.task == "doubletap":
         test.test_doubletap()
-    
-    
+    elif args.task == "detail":
+        test.test_detail()
+    elif args.task == "stats":
+        test.test_stats()
     elif args.task == "bins":
         test.test_bins()
+    elif args.task == "rules":
+        test.test_rules()
+    elif args.task == "rules2":
+        test.test_rules2()
     elif args.task == "all":
         test.run_all_tests()
     else:

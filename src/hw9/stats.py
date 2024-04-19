@@ -25,6 +25,9 @@ def slurp(file):
 
 
 class SAMPLE:
+    """
+    Stores mean, standard deviation, low, high, of a list of numbers
+    """
 
     def __init__(self, lst=[], txt="", rank=0):
         self.has, self.ready = [], False
@@ -63,7 +66,6 @@ class SAMPLE:
         [na, nb, nc, nd, ne] = [pos(x) for x in [a, b, c, d, e]]
         for i in range(nb, nd):
             out[i] = "-"
-
         # for i in range(nd,ne): out[i] = "-"
         out[width // 2] = "|"
         out[nc] = "*"
@@ -72,10 +74,17 @@ class SAMPLE:
 
 
 def different(x, y):
+    """
+    Non-parametric effect size and significance test
+    """
     return _cliffsDelta(x, y) and _bootstrap(x, y)
 
 
 def _cliffsDelta(x, y, effectSize=0.2):
+    """non-parametric effect size. threshold is border between small=.11 and medium=.28 
+       from Table1 of  https://doi.org/10.3102/10769986025002101"""
+    # if len(x) > 10*len(y) : return cliffsDelta(random.choices(x,10*len(y)),y)
+    # if len(y) > 10*len(x) : return cliffsDelta(x, random.choices(y,10*len(x)))
     n, lt, gt = 0, 0, 0
     for x1 in x:
         for y1 in y:
@@ -106,6 +115,7 @@ def _bootstrap(y0, z0, confidence=.05, Experiments=512,):
 
 
 def sk(nums):
+    """sort nums on median. give adjacent nums the same rank if they are statistically the same"""
     def sk1(nums, rank, lvl=1):
         def all(lst): return [x for num in lst for x in num.has]
         b4, cut = SAMPLE(all(nums)), None
@@ -183,3 +193,4 @@ def eg4(n=5):
 if __name__ == "__main__":
     random.seed(1)
     eg1()
+    #[print("\n",f()) for f in [eg1,eg2,eg3,eg4]]
