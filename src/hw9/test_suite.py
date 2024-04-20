@@ -674,7 +674,7 @@ class Tests():
     def test_project(self):
         self.reset_to_default_seed()
         smo_repeat_time = 20
-        self.the.file = "../data/auto93.csv"
+        self.the.file = "../../data/auto93.csv"
 
         d = DATA(self.the, self.the.file)
 
