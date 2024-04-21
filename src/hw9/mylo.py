@@ -115,6 +115,8 @@ def main():
         test.test_rgaussian_mixtures()
     elif args.task == "sc":
         test.test_spectral_clustering()
+    elif args.task == 'dbscan':
+        test.test_dbscan()
     elif args.task == "sc_opt":
         test.find_best_n_neighbors_for_sc()
     elif args.task == "gm":

@@ -8,6 +8,7 @@ from sklearn.cluster import KMeans
 from sklearn.cluster import SpectralClustering
 from sklearn.metrics import silhouette_score
 from sklearn.mixture import GaussianMixture
+from sklearn.cluster import DBSCAN
 
 # ----------------------------------------------------------------------------
 # Data Class
@@ -322,6 +323,48 @@ class DATA:
             rest = a_data
 
         return best.rows, rest.rows, best.mid(), rest.mid()
+    
+    #DBSCAN
+    def split_row_with_dbscan(self, rows, eps=0.5, min_samples=5):
+    # Extract the X data (independent variables) from the rows
+        x_data_rows = []
+        for row in rows:
+            new_x_data = []
+            for x_field in self.cols.x:
+                new_x_data.append(row.cells[x_field.at])
+            x_data_rows.append(new_x_data)
+
+        # Convert the X data to a numpy array
+        data_array = np.array(x_data_rows)
+
+        # Create a DBSCAN object with the specified parameters
+        dbscan = DBSCAN(eps=eps, min_samples=min_samples)
+
+        # Fit the DBSCAN model to the data
+        labels = dbscan.fit_predict(data_array)
+
+        # Separate the rows based on the cluster labels
+        clusters = {}
+        for index, row in enumerate(rows):
+            label = labels[index]
+            if label == -1:
+                # Noise points
+                if -1 not in clusters:
+                    clusters[-1] = [self.cols.names]
+                clusters[-1].append(row)
+            else:
+                # Cluster points
+                if label not in clusters:
+                    clusters[label] = [self.cols.names]
+                clusters[label].append(row)
+
+        # Convert the clusters to DATA objects
+        cluster_data = {}
+        for label, rows in clusters.items():
+            cluster_data[label] = DATA(self.the, rows)
+
+        # Return the cluster DATA objects
+        return cluster_data
 
     def farapart(self, rows, sortp=None, before=None):
         far = int(len(rows) * self.the.Far)

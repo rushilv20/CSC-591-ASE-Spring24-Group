@@ -344,7 +344,7 @@ class Tests():
 
     def test_doubletap(self):
         self.reset_to_default_seed()
-        d = DATA(self.the, "../data/auto93.csv")
+        d = DATA(self.the, "../../data/auto93.csv")
         best1, rest, evals1 = d.branch(32)
         best2, _, evals2 = best1.branch(4)
 
@@ -912,6 +912,32 @@ class Tests():
         else:
             best = b_data
             rest = a_data
+
+    #testcase for dbscan
+    def test_dbscan(self):
+        DEFAULT_EPS = 0.5
+        DEFAULT_MIN_SAMPLES = 5
+
+        self.reset_to_default_seed()
+        self.the.file = "../../data/auto93.csv"
+        print("Data file: {0}".format(self.the.file))
+        d = DATA(self.the, self.the.file)
+        print("Size of data: {0}".format(len(d.rows)))
+
+        cluster_data = d.split_row_with_dbscan(d.rows, eps=DEFAULT_EPS, min_samples=DEFAULT_MIN_SAMPLES)
+
+        print("\nClusters:")
+        for label, cluster in cluster_data.items():
+            if label == -1:
+                print(f"Noise points (cluster {label}): {len(cluster.rows)}")
+            else:
+                print(f"Cluster {label}: {len(cluster.rows)} rows")
+                mid_row = cluster.mid()
+                mid_row_cells = [round(mid_row.cells[field.at], 2) for field in d.cols.all]
+                field_name = [field.txt for field in d.cols.all]
+                print(f"  Mid row = {mid_row_cells}")
+                print(f"  Field names = {field_name}")
+                print(f"  Mid d2h = {mid_row.d2h(d)}")
 
 
 
