@@ -11,6 +11,7 @@ import stats
 import re
 import random
 import math
+import numpy as np
 from Utility import Utility
 from datetime import datetime
 from sklearn.cluster import KMeans
@@ -798,11 +799,11 @@ class Tests():
         # Used to find to best parameter for kmeans
 
         self.reset_to_default_seed()
-        self.the.file = "../data/auto93.csv"
-        self.the.file = "../data/SS-A.csv"
-        self.the.file = "../data/SS-B.csv"
-        self.the.file = "../data/SS-C.csv"
-        self.the.file = "../data/SS-D.csv"
+        self.the.file = "../../data/auto93.csv"
+        # self.the.file = "../../data/diabetes.csv"
+        # self.the.file = "../../data/repgrid1.csv"
+        # self.the.file = "../../data/soybean.csv"
+        # self.the.file = "../../data/weather.csv"
 
         print("Data file: {0}".format(self.the.file))
 
@@ -913,6 +914,59 @@ class Tests():
             best = b_data
             rest = a_data
 
+    def test_find_best_dbscan_parameters(self):
+        EPS_RANGE = [0.06, 0.1, 0.17, 0.2, 0.25]  # Adjusted based on "best" and "tiny" values
+        MIN_SAMPLES_RANGE = [5, 10, 15, 20, 25]
+
+        self.reset_to_default_seed()
+        self.the.file = "../../data/auto93.csv"
+        print("Data file: {0}".format(self.the.file))
+        d = DATA(self.the, self.the.file)
+        print("Size of data: {0}".format(len(d.rows)))
+
+        best_eps = None
+        best_min_samples = None
+        best_silhouette_score = -1
+
+        for eps in EPS_RANGE:
+            for min_samples in MIN_SAMPLES_RANGE:
+                cluster_data = d.split_row_with_dbscan(d.rows, eps=eps, min_samples=min_samples)
+
+                # Compute silhouette score
+                silhouette_scores = []
+                num_valid_clusters = 0
+                for label, cluster in cluster_data.items():
+                    if label == -1:
+                        continue  # Skip noise points
+
+                    x_data_rows = []
+                    for row in cluster.rows:
+                        new_x_data = []
+                        for x_field in d.cols.x:
+                            new_x_data.append(row.cells[x_field.at])
+                        x_data_rows.append(new_x_data)
+
+                    data_array = np.array(x_data_rows)
+                    labels = [0] * len(data_array)  # Assign all points to the same cluster
+
+                    if len(np.unique(labels)) > 1:
+                        num_valid_clusters += 1
+                        silhouette_avg = silhouette_score(data_array, labels)
+                        silhouette_scores.append(silhouette_avg)
+
+            # Compute the overall silhouette score as the mean of cluster silhouette scores
+                overall_silhouette_score = sum(silhouette_scores) / len(silhouette_scores) if silhouette_scores else 0
+
+                # Print the current parameters and silhouette score
+                print(f"eps={eps}, min_samples={min_samples}, silhouette_score={overall_silhouette_score:.3f}")
+
+                # Update best parameters if current score is better
+                if num_valid_clusters > 1 and overall_silhouette_score > best_silhouette_score:
+                    best_eps = eps
+                    best_min_samples = min_samples
+                    best_silhouette_score = overall_silhouette_score
+
+        print(f"\nBest parameters: eps={best_eps}, min_samples={best_min_samples}, silhouette_score={best_silhouette_score:.3f}")
     #testcase for dbscan
     def test_dbscan(self):
         DEFAULT_EPS = 0.5
