@@ -119,6 +119,8 @@ def main():
         test.test_dbscan()
     elif args.task== "dbscan_opt":
         test.test_find_best_dbscan_parameters()
+    elif args.task == 'rdbscan':
+        test.test_rdbscan()
     elif args.task == "sc_opt":
         test.find_best_n_neighbors_for_sc()
     elif args.task == "gm":

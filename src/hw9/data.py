@@ -532,6 +532,56 @@ class DATA:
         else:
             return self.clone(data.rows), best.mid().d2h(self), evals
         
+    def recursive_dbscan(self, max_depth, eps, min_samples, data=None, evals=1):
+        random.seed(self.the.seed)
+        data = data or self
+        best = data
+
+        if evals <= max_depth:
+            if len(data.rows) < 2:
+                raise ValueError("Rows : {0}\n".format(data.rows), "Eval : {0}".format(evals))
+            
+            x_data_rows = []
+            for row in data.rows:
+                new_x_data = []
+                for x_field in data.cols.x:
+                    new_x_data.append(row.cells[x_field.at])
+                x_data_rows.append(new_x_data)
+
+            data_array = np.array(x_data_rows)
+
+            dbscan = DBSCAN(eps=eps, min_samples=min_samples)
+
+            dbscan.fit(data_array)
+
+            labels = dbscan.labels_
+
+            a = [data.cols.names]
+            b = [data.cols.names]
+
+            for index, row in enumerate(data.rows):
+                if labels[index] == 0:
+                    a.append(row)
+                else:
+                    b.append(row)
+
+            a_data = DATA(self.the, a)
+            b_data = DATA(self.the, b)
+
+            a_d2h = a_data.mid().d2h(self)
+            b_d2h = b_data.mid().d2h(self)
+            
+            if a_d2h <= b_d2h:
+                best = a_data
+                rest = b_data
+            else:
+                best = b_data
+                rest = a_data
+            
+            return self.recursive_dbscan(max_depth, eps, min_samples, best, evals + 1)
+        else:
+            return self.clone(data.rows), best.mid().d2h(self), evals
+            
     def recursive_spectral_clustering(self, arg_eval, data=None, affinity='nearest_neighbors', n_neighbors=50, evals=1):
         random.seed(self.the.seed)
         data = data or self

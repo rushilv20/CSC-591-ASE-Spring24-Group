@@ -981,7 +981,7 @@ class Tests():
 
     def test_rkmeans(self):
         self.reset_to_default_seed()
-        self.the.file = "../data/auto93.csv"
+        self.the.file = "../../data/auto93.csv"
         #self.the.file = "../data/SS-A.csv"
 
         print("Data file: {0}".format(self.the.file))
@@ -1009,6 +1009,42 @@ class Tests():
         print("d2h = {0}\n".format(best7_d2h))
         print("Best Row (5) = {0}".format(best5_cell))
         print("d2h = {0}\n".format(best5_d2h))
+
+    def test_rdbscan(self):
+    # Reset seed and set data file path
+        self.reset_to_default_seed()
+        self.the.file = "../../data/auto93.csv"
+        print("Data file: {0}".format(self.the.file))
+
+        # Load data
+        data = DATA(self.the, self.the.file)
+
+        # Apply recursive DBSCAN with different values of arg_eval
+        best9, best9_d2h, evals = data.recursive_dbscan(9,7,16)
+        best7, best7_d2h, evals = data.recursive_dbscan(7,7,16)
+        best5, best5_d2h, evals = data.recursive_dbscan(5,7,16)
+
+        # Calculate mid rows for each result
+        best9_mid = best9.mid()
+        best7_mid = best7.mid()
+        best5_mid = best5.mid()
+
+        # Extract cell values from mid rows
+        best9_cell = [round(best9_mid.cells[field.at], 2) for field in data.cols.all]
+        best7_cell = [round(best7_mid.cells[field.at], 2) for field in data.cols.all]
+        best5_cell = [round(best5_mid.cells[field.at], 2) for field in data.cols.all]
+
+        # Print results
+        print("")
+        field_name = [field.txt for field in data.cols.all]
+        print("           {0}".format(field_name))
+        print("Best Row (9) = {0}".format(best9_cell))
+        print("d2h = {0}\n".format(best9_d2h))
+        print("Best Row (7) = {0}".format(best7_cell))
+        print("d2h = {0}\n".format(best7_d2h))
+        print("Best Row (5) = {0}".format(best5_cell))
+        print("d2h = {0}\n".format(best5_d2h))
+
 
     def test_rspectral_clustering(self):
         self.reset_to_default_seed()
