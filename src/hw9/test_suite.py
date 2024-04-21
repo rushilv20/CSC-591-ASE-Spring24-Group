@@ -18,6 +18,7 @@ from sklearn.cluster import KMeans
 from sklearn.cluster import SpectralClustering
 from sklearn.metrics import silhouette_score
 from sklearn.mixture import GaussianMixture
+from sklearn.neighbors import NearestNeighbors
 
 class Tests():
     def __init__(self, the) -> None:
@@ -914,71 +915,54 @@ class Tests():
             best = b_data
             rest = a_data
 
-    def test_find_best_dbscan_parameters(self):
-        EPS_RANGE = [0.06, 0.1, 0.17, 0.2, 0.25]  # Adjusted based on "best" and "tiny" values
-        MIN_SAMPLES_RANGE = [5, 10, 15, 20, 25]
-
-        self.reset_to_default_seed()
-        self.the.file = "../../data/auto93.csv"
-        print("Data file: {0}".format(self.the.file))
-        d = DATA(self.the, self.the.file)
-        print("Size of data: {0}".format(len(d.rows)))
-
-        best_eps = None
-        best_min_samples = None
-        best_silhouette_score = -1
-
-        for eps in EPS_RANGE:
-            for min_samples in MIN_SAMPLES_RANGE:
-                cluster_data = d.split_row_with_dbscan(d.rows, eps=eps, min_samples=min_samples)
-
-                # Compute silhouette score
-                silhouette_scores = []
-                num_valid_clusters = 0
-                for label, cluster in cluster_data.items():
-                    if label == -1:
-                        continue  # Skip noise points
-
-                    x_data_rows = []
-                    for row in cluster.rows:
-                        new_x_data = []
-                        for x_field in d.cols.x:
-                            new_x_data.append(row.cells[x_field.at])
-                        x_data_rows.append(new_x_data)
-
-                    data_array = np.array(x_data_rows)
-                    labels = [0] * len(data_array)  # Assign all points to the same cluster
-
-                    if len(np.unique(labels)) > 1:
-                        num_valid_clusters += 1
-                        silhouette_avg = silhouette_score(data_array, labels)
-                        silhouette_scores.append(silhouette_avg)
-
-            # Compute the overall silhouette score as the mean of cluster silhouette scores
-                overall_silhouette_score = sum(silhouette_scores) / len(silhouette_scores) if silhouette_scores else 0
-
-                # Print the current parameters and silhouette score
-                print(f"eps={eps}, min_samples={min_samples}, silhouette_score={overall_silhouette_score:.3f}")
-
-                # Update best parameters if current score is better
-                if num_valid_clusters > 1 and overall_silhouette_score > best_silhouette_score:
-                    best_eps = eps
-                    best_min_samples = min_samples
-                    best_silhouette_score = overall_silhouette_score
-
-        print(f"\nBest parameters: eps={best_eps}, min_samples={best_min_samples}, silhouette_score={best_silhouette_score:.3f}")
+    
     #testcase for dbscan
     def test_dbscan(self):
-        DEFAULT_EPS = 0.5
-        DEFAULT_MIN_SAMPLES = 5
+        #For 2-dimensional data, use DBSCAN’s default value of MinPts = 4 (Ester et al., 1996).
+#If your data has more than 2 dimensions, choose MinPts = 2*dim, where dim= the dimensions of your data set (Sander et al., 1998).
+        # DEFAULT_EPS = 5
+        DEFAULT_MIN_SAMPLES = 4
 
         self.reset_to_default_seed()
         self.the.file = "../../data/auto93.csv"
         print("Data file: {0}".format(self.the.file))
         d = DATA(self.the, self.the.file)
         print("Size of data: {0}".format(len(d.rows)))
+        print("Dimension of data: {0}".format(len(d.cols.all)))
+        if len(d.cols.all) > 2:
+            DEFAULT_MIN_SAMPLES = 2 * len(d.cols.all)
 
-        cluster_data = d.split_row_with_dbscan(d.rows, eps=DEFAULT_EPS, min_samples=DEFAULT_MIN_SAMPLES)
+        x_data_rows = []
+        for row in d.rows:
+            new_x_data = []
+            for x_field in d.cols.x:
+                new_x_data.append(row.cells[x_field.at])
+            x_data_rows.append(new_x_data)
+
+        data_array = np.array(x_data_rows)
+
+         # Step 2: Calculate the average distance between each point in the data set and its 20 nearest neighbors
+        neighbors = NearestNeighbors(n_neighbors=DEFAULT_MIN_SAMPLES )
+
+        neighbors_fit = neighbors.fit(data_array)
+        distances, indices = neighbors_fit.kneighbors(data_array)
+
+# Step 3: Sort distance values by ascending value
+        distances = np.sort(distances, axis=0)
+        distances = distances[:, 1]
+
+    # Find the optimal epsilon value using the elbow method
+        optimal_epsilon = None
+        max_curvature = -1
+        for i in range(1, len(distances) - 1):
+            curvature = abs(distances[i+1] - distances[i]) - abs(distances[i] - distances[i-1])
+            if curvature > max_curvature:
+                max_curvature = curvature
+                optimal_epsilon = distances[i]
+
+        print("Optimal Epsilon:", optimal_epsilon)
+
+        cluster_data = d.split_row_with_dbscan(d.rows, eps=optimal_epsilon, min_samples=DEFAULT_MIN_SAMPLES)
 
         print("\nClusters:")
         for label, cluster in cluster_data.items():
