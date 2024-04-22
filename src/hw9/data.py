@@ -98,6 +98,7 @@ class DATA:
         return new
     
     def gate(self, budget0, budget, some, clustering_method=None):
+        random.seed(self.the.seed)
         stats = []
         bests = []
         rows = self.util.shuffle(self.rows)

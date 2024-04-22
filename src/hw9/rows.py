@@ -31,8 +31,8 @@ class ROW:
                     out += math.log(inc)
                 except ValueError:
                     return 0.0
-
-        return math.exp(1) ** out
+        # return exp(1) ** out
+        return out
 
     """
     function ROW:d2h(data, d, n)
