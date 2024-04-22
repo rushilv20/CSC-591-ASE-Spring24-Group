@@ -358,13 +358,32 @@ class DATA:
                     clusters[label] = [self.cols.names]
                 clusters[label].append(row)
 
-        # Convert the clusters to DATA objects
-        cluster_data = {}
-        for label, rows in clusters.items():
-            cluster_data[label] = DATA(self.the, rows)
+        # Find the best and rest clusters
+        best_cluster_key = None
+        best_cluster_d2h = float('inf')
+        for key, rows in clusters.items():
+            if key == -1:
+                continue
+            cluster_data = DATA(self.the, rows)
+            cluster_mid_row = cluster_data.mid()
+            cluster_d2h = cluster_mid_row.d2h(self)
+            if cluster_d2h < best_cluster_d2h:
+                best_cluster_key = key
+                best_cluster_d2h = cluster_d2h
 
-        # Return the cluster DATA objects
-        return cluster_data
+        # Prepare the best and rest data
+        best_rows = clusters[best_cluster_key]
+        best_data = DATA(self.the, best_rows)
+
+        rest_rows = []
+        for key, rows in clusters.items():
+            if key != best_cluster_key:
+                rest_rows.extend(rows[1:])  # Exclude the header row
+        rest_data = DATA(self.the, [self.cols.names] + rest_rows)
+
+        return best_data.rows, rest_data.rows, best_data.mid(), rest_data.mid()
+
+        
 
     def farapart(self, rows, sortp=None, before=None):
         far = int(len(rows) * self.the.Far)
@@ -464,6 +483,20 @@ class DATA:
                     kwargs['n_neighbors'] = n_neighbors
 
                 lefts, rights, left, right  = self.split_row_with_spectral_clustering(rows, **kwargs)
+            elif cluserting_algo_type == "dbscan":
+                eps = clustering_parameter_dict.get("eps")
+                min_samples = clustering_parameter_dict.get("min_samples")
+
+                kwargs = {}
+                if eps:
+                    kwargs['eps'] = eps
+                if min_samples:
+                    kwargs['min_samples'] = min_samples
+
+                lefts, rights, left, right  = self.split_row_with_dbscan(rows, **kwargs)
+           
+
+                
             elif cluserting_algo_type == "gaussian_mixtures":
                 covariance_type = clustering_parameter_dict.get("covariance_type")
                 max_iter = clustering_parameter_dict.get("max_iter")
@@ -474,6 +507,7 @@ class DATA:
                     kwargs['max_iter'] = max_iter
 
                 lefts, rights, left, right  = self.split_row_with_gaussian_mixtures(rows, **kwargs)
+            
             else:
                 raise RuntimeError("Unsupported Clustering Algorithm: {0}".format(cluserting_algo_type))
 

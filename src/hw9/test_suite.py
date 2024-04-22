@@ -19,6 +19,7 @@ from sklearn.cluster import SpectralClustering
 from sklearn.metrics import silhouette_score
 from sklearn.mixture import GaussianMixture
 from sklearn.neighbors import NearestNeighbors
+from sklearn.cluster import DBSCAN
 
 class Tests():
     def __init__(self, the) -> None:
@@ -960,23 +961,35 @@ class Tests():
                 max_curvature = curvature
                 optimal_epsilon = distances[i]
 
+       
+
         print("Optimal Epsilon:", optimal_epsilon)
 
-        cluster_data = d.split_row_with_dbscan(d.rows, eps=optimal_epsilon, min_samples=DEFAULT_MIN_SAMPLES)
+        # Create a DBSCAN object with the specified parameters
+        dbscan = DBSCAN(eps=optimal_epsilon, min_samples=DEFAULT_MIN_SAMPLES)
 
-        print("\nClusters:")
-        for label, cluster in cluster_data.items():
+        # Fit the DBSCAN model to the data
+        labels = dbscan.fit_predict(data_array)
+
+        # Separate the rows based on the cluster labels
+        clusters = {}
+        for index, row in enumerate(d.rows):
+            label = labels[index]
             if label == -1:
-                print(f"Noise points (cluster {label}): {len(cluster.rows)}")
+                # Noise points
+                if -1 not in clusters:
+                    clusters[-1] = [d.cols.names]
+                clusters[-1].append(row)
             else:
-                print(f"Cluster {label}: {len(cluster.rows)} rows")
-                mid_row = cluster.mid()
-                mid_row_cells = [round(mid_row.cells[field.at], 2) for field in d.cols.all]
-                field_name = [field.txt for field in d.cols.all]
-                print(f"  Mid row = {mid_row_cells}")
-                print(f"  Field names = {field_name}")
-                print(f"  Mid d2h = {mid_row.d2h(d)}")
-
+                # Cluster points
+                if label not in clusters:
+                    clusters[label] = [d.cols.names]
+                clusters[label].append(row)
+        # Print the clusters
+        for label, cluster_rows in clusters.items():
+            print("Cluster {0}:".format(label))
+            for row in cluster_rows:
+                print(" ".join(str(cell) for cell in row.cells))
 
 
     def test_rkmeans(self):
@@ -1383,7 +1396,7 @@ class Tests():
         tiny_value = 0.35 * standard_deviation
         print("tiny : {0}".format(round(tiny_value, 2)))
 
-        test_case = ["base", "bonr9", "bonr15", "bonr25", "bonr35", "bonr45","b/r9", "b/r15", "b/r25",         "b/r35", "b/r45","rrp_projection", "rrp_kmeans", "rrp_sc", "rrp_gm","rand9", "rand15", "rand25", "rand35", "rand358"]
+        test_case = ["base", "bonr9", "bonr15", "bonr25", "bonr35", "bonr45","b/r9", "b/r15", "b/r25",         "b/r35", "b/r45","rrp_projection", "rrp_kmeans","rrp_dbscan", "rrp_sc", "rrp_gm","rand9", "rand15", "rand25", "rand35", "rand358"]
         # test_case = ["base", "bonr9", "rand9", "bonr15", "rand15", "bonr20", "rand20", "rand358", "bonr30", "bonr40", "bonr50", "bonr60"]
         test_case_n = len(test_case)
 
@@ -1474,6 +1487,11 @@ class Tests():
                         clustering_parameter_dict["max_iter"] = 100  # sklearn's default value is 300
 
                         best, rest, evals = d.rrp(cluserting_algo_type="kmeans", clustering_parameter_dict=clustering_parameter_dict)
+                    elif clustering_algo == "dbscan":
+                        clustering_parameter_dict["eps"] = 7
+                        clustering_parameter_dict["min_samples"] = 16  # sklearn's default value is 5
+
+                        best, rest, evals = d.rrp(cluserting_algo_type="dbscan", clustering_parameter_dict=clustering_parameter_dict)
                     elif clustering_algo == "sc":
                         clustering_parameter_dict["affinity"] = "nearest_neighbors"  # sklearn's default value is "rbf"
                         clustering_parameter_dict["n_neighbors"] = 50  # sklearn's default value is 10
@@ -1484,6 +1502,7 @@ class Tests():
                         clustering_parameter_dict["max_iter"] = 100  # sklearn's default value is 100
 
                         best, rest, evals = d.rrp(cluserting_algo_type="gaussian_mixtures", clustering_parameter_dict=clustering_parameter_dict)
+                    
                     else:
                         raise RuntimeError("Unsupported Clustering Algorithm: {0}".format(clustering_algo))
 
