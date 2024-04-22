@@ -925,7 +925,7 @@ class Tests():
         DEFAULT_MIN_SAMPLES = 4
 
         self.reset_to_default_seed()
-        self.the.file = "../../data/SS-A.csv"
+        self.the.file = "../../data/SS-D.csv"
         print("Data file: {0}".format(self.the.file))
         d = DATA(self.the, self.the.file)
         print("Size of data: {0}".format(len(d.rows)))
@@ -1539,7 +1539,7 @@ class Tests():
     def test_new_rrp(self):
         self.reset_to_default_seed()
         smo_repeat_time = 20
-        self.the.file = "../../data/SS-A.csv"
+        self.the.file = "../../data/health0.csv"
         
 
         d = DATA(self.the, self.the.file)
@@ -1567,7 +1567,6 @@ class Tests():
         test_case = ["base", "bonr9", "bonr15", "bonr25", "bonr35", "bonr45",
                     "rrp4_projection", "rrp5_projection", "rrp6_projection", "rrp7_projection", "rrp8_projection", "rrp9_projection",
                     "rrp2_kmeans", "rrp3_kmeans", "rrp4_kmeans", "rrp5_kmeans", "rrp6_kmeans", "rrp7_kmeans",
-                    "rrp2_sc", "rrp3_sc", "rrp4_sc", "rrp5_sc", "rrp6_sc", "rrp9_sc",
                     "rrp5_dbscan","rrp6_dbscan","rrp7_dbscan","rrp8_dbscan","rrp9_dbscan",
                     "rand9", "rand15", "rand25", "rand35", "rand358"]
         test_case_n = len(test_case)
@@ -1641,8 +1640,8 @@ class Tests():
                         best, rest, evals = d.rrp(stop=tree_depth, cluserting_algo_type="projection")
                     elif clustering_algo == "kmeans":
                         best, d2h, evals = d.recursive_kmeans(tree_depth)
-                    elif clustering_algo == "sc":
-                        best, d2h, evals = d.recursive_spectral_clustering(tree_depth)
+                    # elif clustering_algo == "sc":
+                    #     best, d2h, evals = d.recursive_spectral_clustering(tree_depth)
                    
                     elif clustering_algo == "dbscan":
                         best, d2h, evals = d.recursive_dbscan(tree_depth,1,10)

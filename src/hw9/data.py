@@ -798,16 +798,16 @@ class DATA:
             return self.clone(data.rows), best.mid().d2h(self), evals
 
 #trying out the split rows with dbscan function and checking if it correctly splits the rows into two clusters
-data = DATA(Utility(), src="../../Data/SS-A.csv")
-rows = data.rows
-eps = 7
-min_samples = 16
-best, rest, best_mid, rest_mid = data.split_row_with_dbscan(rows, eps=eps, min_samples=min_samples)
-print("Best Cluster:")
-print(best_mid.cells)
-print("Rest Cluster:")
-print(rest_mid.cells)
-print("Best Cluster Rows:")
+# data = DATA(Utility(), src="../../Data/SS-A.csv")
+# rows = data.rows
+# eps = 7
+# min_samples = 16
+# best, rest, best_mid, rest_mid = data.split_row_with_dbscan(rows, eps=eps, min_samples=min_samples)
+# print("Best Cluster:")
+# print(best_mid.cells)
+# print("Rest Cluster:")
+# print(rest_mid.cells)
+# print("Best Cluster Rows:")
 
 
 
