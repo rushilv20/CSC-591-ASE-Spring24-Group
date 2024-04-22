@@ -925,7 +925,7 @@ class Tests():
         DEFAULT_MIN_SAMPLES = 4
 
         self.reset_to_default_seed()
-        self.the.file = "../../data/auto93.csv"
+        self.the.file = "../../data/SS-A.csv"
         print("Data file: {0}".format(self.the.file))
         d = DATA(self.the, self.the.file)
         print("Size of data: {0}".format(len(d.rows)))
@@ -985,11 +985,11 @@ class Tests():
                 if label not in clusters:
                     clusters[label] = [d.cols.names]
                 clusters[label].append(row)
-        # Print the clusters
-        for label, cluster_rows in clusters.items():
-            print("Cluster {0}:".format(label))
-            for row in cluster_rows:
-                print(" ".join(str(cell) for cell in row.cells))
+        # # Print the clusters
+        # for label, cluster_rows in clusters.items():
+        #     print("Cluster {0}:".format(label))
+        #     for row in cluster_rows:
+        #         print(" ".join(str(cell) for cell in row.cells))
 
 
     def test_rkmeans(self):
@@ -1539,7 +1539,7 @@ class Tests():
     def test_new_rrp(self):
         self.reset_to_default_seed()
         smo_repeat_time = 20
-        self.the.file = "../../data/auto93.csv"
+        self.the.file = "../../data/SS-A.csv"
         
 
         d = DATA(self.the, self.the.file)
@@ -1645,7 +1645,7 @@ class Tests():
                         best, d2h, evals = d.recursive_spectral_clustering(tree_depth)
                    
                     elif clustering_algo == "dbscan":
-                        best, d2h, evals = d.recursive_dbscan(tree_depth,7,16)
+                        best, d2h, evals = d.recursive_dbscan(tree_depth,1,10)
                     else:
                         raise RuntimeError("Unsupported Clustering Algorithm: {0}".format(clustering_algo))
                     d2h_list.append(best.mid().d2h(d))
