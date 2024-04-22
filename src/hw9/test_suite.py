@@ -1539,7 +1539,7 @@ class Tests():
     def test_new_rrp(self):
         self.reset_to_default_seed()
         smo_repeat_time = 20
-        self.the.file = "../../data/health0.csv"
+        self.the.file = "../../data/SS-J.csv"
         
 
         d = DATA(self.the, self.the.file)
