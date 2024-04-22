@@ -1487,11 +1487,16 @@ class Tests():
                         clustering_parameter_dict["max_iter"] = 100  # sklearn's default value is 300
 
                         best, rest, evals = d.rrp(cluserting_algo_type="kmeans", clustering_parameter_dict=clustering_parameter_dict)
+                   
+
+                    #when clustering_algo is dbscan
                     elif clustering_algo == "dbscan":
-                        clustering_parameter_dict["eps"] = 7
-                        clustering_parameter_dict["min_samples"] = 16  # sklearn's default value is 5
+                        clustering_parameter_dict["eps"] = 7  # sklearn's default value is 0.5
+                        clustering_parameter_dict["min_samples"] = 6 # sklearn's default value is 5
 
                         best, rest, evals = d.rrp(cluserting_algo_type="dbscan", clustering_parameter_dict=clustering_parameter_dict)
+
+
                     elif clustering_algo == "sc":
                         clustering_parameter_dict["affinity"] = "nearest_neighbors"  # sklearn's default value is "rbf"
                         clustering_parameter_dict["n_neighbors"] = 50  # sklearn's default value is 10

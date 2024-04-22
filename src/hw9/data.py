@@ -9,7 +9,7 @@ from sklearn.cluster import SpectralClustering
 from sklearn.metrics import silhouette_score
 from sklearn.mixture import GaussianMixture
 from sklearn.cluster import DBSCAN
-
+from sklearn.decomposition import PCA
 # ----------------------------------------------------------------------------
 # Data Class
 
@@ -325,8 +325,10 @@ class DATA:
         return best.rows, rest.rows, best.mid(), rest.mid()
     
     #DBSCAN
-    def split_row_with_dbscan(self, rows, eps=0.5, min_samples=5):
-    # Extract the X data (independent variables) from the rows
+   
+
+    def split_row_with_dbscan(self, rows, eps=0.5, min_samples=5, n_components=2):
+        # Extract the X data (independent variables) from the rows
         x_data_rows = []
         for row in rows:
             new_x_data = []
@@ -336,6 +338,10 @@ class DATA:
 
         # Convert the X data to a numpy array
         data_array = np.array(x_data_rows)
+
+        # Apply PCA
+        pca = PCA(n_components=n_components)
+        data_array = pca.fit_transform(data_array)
 
         # Create a DBSCAN object with the specified parameters
         dbscan = DBSCAN(eps=eps, min_samples=min_samples)
@@ -357,8 +363,15 @@ class DATA:
                 if label not in clusters:
                     clusters[label] = [self.cols.names]
                 clusters[label].append(row)
-
-        # Find the best and rest clusters
+        # If all points are considered as noise, split the data into two equal halves
+        if len(clusters) == 1 and -1 in clusters:
+            half = len(rows) // 2
+            best_rows = rows[:half]
+            rest_rows = rows[half:]
+            best_data = DATA(self.the, best_rows)
+            rest_data = DATA(self.the, rest_rows)
+            return best_data.rows, rest_data.rows, best_data.mid(), rest_data.mid()
+        #Find the best and rest clusters
         best_cluster_key = None
         best_cluster_d2h = float('inf')
         for key, rows in clusters.items():
@@ -382,6 +395,71 @@ class DATA:
         rest_data = DATA(self.the, [self.cols.names] + rest_rows)
 
         return best_data.rows, rest_data.rows, best_data.mid(), rest_data.mid()
+    # def split_row_with_dbscan(self, rows, eps=0.5, min_samples=5):
+    # # Extract the X data (independent variables) from the rows
+    #     x_data_rows = []
+    #     for row in rows:
+    #         new_x_data = []
+    #         for x_field in self.cols.x:
+    #             new_x_data.append(row.cells[x_field.at])
+    #         x_data_rows.append(new_x_data)
+
+    #     # Convert the X data to a numpy array
+    #     data_array = np.array(x_data_rows)
+
+    #     # Create a DBSCAN object with the specified parameters
+    #     dbscan = DBSCAN(eps=eps, min_samples=min_samples)
+
+    #     # Fit the DBSCAN model to the data
+    #     labels = dbscan.fit_predict(data_array)
+
+    #     # Separate the rows based on the cluster labels
+    #     clusters = {}
+    #     for index, row in enumerate(rows):
+    #         label = labels[index]
+    #         if label == -1:
+    #             # Noise points
+    #             if -1 not in clusters:
+    #                 clusters[-1] = [self.cols.names]
+    #             clusters[-1].append(row)
+    #         else:
+    #             # Cluster points
+    #             if label not in clusters:
+    #                 clusters[label] = [self.cols.names]
+    #             clusters[label].append(row)
+    #     # If all points are considered as noise, split the data into two equal halves
+    #     if len(clusters) == 1 and -1 in clusters:
+    #         half = len(rows) // 2
+    #         best_rows = rows[:half]
+    #         rest_rows = rows[half:]
+    #         best_data = DATA(self.the, best_rows)
+    #         rest_data = DATA(self.the, rest_rows)
+    #         return best_data.rows, rest_data.rows, best_data.mid(), rest_data.mid()
+
+    #     # Find the best and rest clusters
+    #     best_cluster_key = None
+    #     best_cluster_d2h = float('inf')
+    #     for key, rows in clusters.items():
+    #         if key == -1:
+    #             continue
+    #         cluster_data = DATA(self.the, rows)
+    #         cluster_mid_row = cluster_data.mid()
+    #         cluster_d2h = cluster_mid_row.d2h(self)
+    #         if cluster_d2h < best_cluster_d2h:
+    #             best_cluster_key = key
+    #             best_cluster_d2h = cluster_d2h
+
+    #     # Prepare the best and rest data
+    #     best_rows = clusters[best_cluster_key]
+    #     best_data = DATA(self.the, best_rows)
+
+    #     rest_rows = []
+    #     for key, rows in clusters.items():
+    #         if key != best_cluster_key:
+    #             rest_rows.extend(rows[1:])  # Exclude the header row
+    #     rest_data = DATA(self.the, [self.cols.names] + rest_rows)
+
+    #     return best_data.rows, rest_data.rows, best_data.mid(), rest_data.mid()
 
         
 
@@ -446,13 +524,16 @@ class DATA:
             return self.clone(rows), self.clone(rest), evals
 
 
-    def rrp(self, rows=None, stop=None, rest=None, evals=1, before=None, cluserting_algo_type="projection", clustering_parameter_dict=None):
+    def rrp(self, rows=None, stop=None, rest=None, evals=1, before=None, cluserting_algo_type="projection", clustering_parameter_dict=None,max_depth=100):
         import warnings
         warnings.filterwarnings("ignore", category=UserWarning)
         random.seed(self.the.seed)
         rows = rows or self.rows
         stop = stop or len(rows) ** 0.5
         rest = rest or []
+        # If the maximum depth is reached, return the current rows and rest
+        if evals > max_depth:
+            return self.clone(rows), self.clone(rest), evals
         if len(rows) > stop:
             if cluserting_algo_type == "projection":
                 try:
@@ -484,16 +565,9 @@ class DATA:
 
                 lefts, rights, left, right  = self.split_row_with_spectral_clustering(rows, **kwargs)
             elif cluserting_algo_type == "dbscan":
-                eps = clustering_parameter_dict.get("eps")
-                min_samples = clustering_parameter_dict.get("min_samples")
-
-                kwargs = {}
-                if eps:
-                    kwargs['eps'] = eps
-                if min_samples:
-                    kwargs['min_samples'] = min_samples
-
-                lefts, rights, left, right  = self.split_row_with_dbscan(rows, **kwargs)
+                eps = clustering_parameter_dict.get("eps", 0.5)
+                min_samples = clustering_parameter_dict.get("min_samples", 5)
+                lefts, rights, left, right = self.split_row_with_dbscan(rows, eps=eps, min_samples=min_samples)
            
 
                 
@@ -507,6 +581,12 @@ class DATA:
                     kwargs['max_iter'] = max_iter
 
                 lefts, rights, left, right  = self.split_row_with_gaussian_mixtures(rows, **kwargs)
+
+            #when cluserting_algo_type is dbscan
+            elif cluserting_algo_type == "dbscan":
+                eps = clustering_parameter_dict.get("eps", 0.5)
+                min_samples = clustering_parameter_dict.get("min_samples", 5)
+                lefts, rights, left, right = self.split_row_with_dbscan(rows, eps=eps, min_samples=min_samples)
             
             else:
                 raise RuntimeError("Unsupported Clustering Algorithm: {0}".format(cluserting_algo_type))
@@ -717,6 +797,18 @@ class DATA:
         else:
             return self.clone(data.rows), best.mid().d2h(self), evals
 
-#data = DATA(src='../data/auto93.csv')
+# #trying out the split rows with dbscan function and checking if it correctly splits the rows into two clusters
+# data = DATA(Utility(), src="../../Data/auto93.csv")
+# rows = data.rows
+# eps = 7
+# min_samples = 16
+# best, rest, best_mid, rest_mid = data.split_row_with_dbscan(rows, eps=eps, min_samples=min_samples)
+# print("Best Cluster:")
+# print(best_mid.cells)
+# print("Rest Cluster:")
+# print(rest_mid.cells)
+# print("Best Cluster Rows:")
+
+
 
 #print(data.stats())
